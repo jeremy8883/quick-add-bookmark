@@ -212,6 +212,15 @@ export function buildTreeNode(
   label.textContent = node.title || "Bookmarks";
   item.appendChild(label);
 
+  // Bookmark count (non-folder children)
+  const bookmarkCount = node.children.filter((c) => !c.children).length;
+  if (bookmarkCount > 0) {
+    const count = document.createElement("span");
+    count.className = "tree-count";
+    count.textContent = String(bookmarkCount);
+    item.appendChild(count);
+  }
+
   wrapper.appendChild(item);
 
   // Children container

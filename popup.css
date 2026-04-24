@@ -138,6 +138,15 @@ body {
 .tree-label {
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.tree-count {
+  flex-shrink: 0;
+  margin-left: 8px;
+  font-size: 11px;
+  color: #9aa0a6;
 }
 
 .tree-filter-item {
