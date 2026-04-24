@@ -85,22 +85,40 @@ body {
 .resize-handle {
   position: fixed;
   bottom: 0;
-  right: 0;
   width: 16px;
   height: 16px;
-  cursor: nwse-resize;
   z-index: 300;
+  touch-action: none;
 }
 
-.resize-handle::after {
+.resize-handle-right {
+  right: 0;
+  cursor: nwse-resize;
+}
+
+.resize-handle-left {
+  left: 0;
+  cursor: nesw-resize;
+}
+
+.resize-handle-right::after,
+.resize-handle-left::after {
   content: "";
   position: absolute;
   bottom: 3px;
-  right: 3px;
   width: 8px;
   height: 8px;
-  border-right: 2px solid #9aa0a6;
   border-bottom: 2px solid #9aa0a6;
+}
+
+.resize-handle-right::after {
+  right: 3px;
+  border-right: 2px solid #9aa0a6;
+}
+
+.resize-handle-left::after {
+  left: 3px;
+  border-left: 2px solid #9aa0a6;
 }
 
 .filter-hint {

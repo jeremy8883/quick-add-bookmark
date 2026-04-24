@@ -77,42 +77,46 @@ function clampSize(w: number, h: number) {
   };
 }
 
-function setupResizeHandle() {
-  const handle = document.getElementById("resize-handle")!;
-  let startX = 0;
-  let startY = 0;
-  let startW = 0;
-  let startH = 0;
+function setupResizeHandles() {
+  const handleRight = document.getElementById("resize-handle-right")!;
+  const handleLeft = document.getElementById("resize-handle-left")!;
 
-  handle.addEventListener("mousedown", (e) => {
-    e.preventDefault();
-    startX = e.clientX;
-    startY = e.clientY;
-    startW = document.body.offsetWidth;
-    startH = document.body.offsetHeight;
+  function attachHandle(handle: HTMLElement, xDirection: 1 | -1) {
+    handle.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      handle.setPointerCapture(e.pointerId);
 
-    const onMove = (ev: MouseEvent) => {
-      const { width, height } = clampSize(
-        startW + (ev.clientX - startX),
-        startH + (ev.clientY - startY),
-      );
-      document.body.style.width = width + "px";
-      document.body.style.height = height + "px";
-    };
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startW = document.body.offsetWidth;
+      const startH = document.body.offsetHeight;
 
-    const onUp = () => {
-      document.removeEventListener("mousemove", onMove);
-      document.removeEventListener("mouseup", onUp);
-      const size = clampSize(
-        document.body.offsetWidth,
-        document.body.offsetHeight,
-      );
-      setPopupSize(size);
-    };
+      const onMove = (ev: PointerEvent) => {
+        const { width, height } = clampSize(
+          startW + (ev.clientX - startX) * xDirection,
+          startH + (ev.clientY - startY),
+        );
+        document.body.style.width = width + "px";
+        document.body.style.height = height + "px";
+      };
 
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-  });
+      const onUp = () => {
+        handle.removeEventListener("pointermove", onMove);
+        handle.removeEventListener("pointerup", onUp);
+        const size = clampSize(
+          document.body.offsetWidth,
+          document.body.offsetHeight,
+        );
+        setPopupSize(size);
+      };
+
+      handle.addEventListener("pointermove", onMove);
+      handle.addEventListener("pointerup", onUp);
+    });
+  }
+
+  attachHandle(handleRight, 1);
+  attachHandle(handleLeft, -1);
 }
 
 async function init() {
@@ -123,7 +127,7 @@ async function init() {
     document.body.style.width = width + "px";
     document.body.style.height = height + "px";
   }
-  setupResizeHandle();
+  setupResizeHandles();
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const pageTitle = tab.title || "";
