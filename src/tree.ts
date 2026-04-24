@@ -2,6 +2,7 @@ const FOLDER_SVG = `<svg class="tree-icon" viewBox="0 0 20 20" fill="#5f6368"><p
 
 export interface TreeState {
   selectedFolderId: string | null;
+  onFolderSelected: ((folderId: string) => void) | null;
 }
 
 /**
@@ -28,6 +29,15 @@ export function findPathToTarget(
   return false;
 }
 
+function toggleExpand(
+  childContainer: HTMLElement,
+  toggle: HTMLElement,
+): boolean {
+  const isOpen = childContainer.classList.toggle("open");
+  toggle.classList.toggle("expanded", isOpen);
+  return isOpen;
+}
+
 /**
  * Recursively build a DOM subtree for a bookmark folder node.
  * Returns null for non-folder nodes (leaf bookmarks).
@@ -51,10 +61,9 @@ export function buildTreeNode(
 
   const hasSubfolders = node.children.some((c) => c.children);
 
-  // Toggle arrow
+  // Toggle arrow — clickable expand/collapse control
   const toggle = document.createElement("span");
   toggle.className = "tree-toggle" + (hasSubfolders ? "" : " empty");
-  toggle.textContent = "\u25B6";
   item.appendChild(toggle);
 
   // Folder icon
@@ -76,7 +85,7 @@ export function buildTreeNode(
 
   if (pathToTarget.has(node.id)) {
     childContainer.classList.add("open");
-    toggle.textContent = "\u25BC";
+    toggle.classList.add("expanded");
   }
 
   for (const child of node.children) {
@@ -99,19 +108,30 @@ export function buildTreeNode(
     state.selectedFolderId = node.id;
   }
 
-  // Click: toggle expand + select
+  // Click the toggle icon to expand/collapse
+  toggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (hasSubfolders) {
+      toggleExpand(childContainer, toggle);
+    }
+  });
+
+  // Single click on row: select folder
   item.addEventListener("click", (e) => {
     e.stopPropagation();
-
-    if (hasSubfolders) {
-      const isOpen = childContainer.classList.toggle("open");
-      toggle.textContent = isOpen ? "\u25BC" : "\u25B6";
-    }
-
     const prev = treeContainer.querySelector(".selected");
     if (prev) prev.classList.remove("selected");
     item.classList.add("selected");
     state.selectedFolderId = node.id;
+    state.onFolderSelected?.(node.id);
+  });
+
+  // Double click on row: expand/collapse
+  item.addEventListener("dblclick", (e) => {
+    e.stopPropagation();
+    if (hasSubfolders) {
+      toggleExpand(childContainer, toggle);
+    }
   });
 
   return wrapper;

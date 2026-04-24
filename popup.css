@@ -71,19 +71,46 @@ body {
 }
 
 .tree-toggle {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  font-size: 10px;
   color: #5f6368;
   margin-right: 2px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.tree-toggle:hover {
+  background: #dadce0;
+}
+
+/* CSS triangle: collapsed (right-pointing) */
+.tree-toggle::after {
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 5px solid #5f6368;
+  transition: transform 0.15s;
+}
+
+/* Expanded (down-pointing) */
+.tree-toggle.expanded::after {
+  transform: rotate(90deg);
 }
 
 .tree-toggle.empty {
   visibility: hidden;
+  pointer-events: none;
+}
+
+.tree-toggle.empty::after {
+  display: none;
 }
 
 .tree-icon {
