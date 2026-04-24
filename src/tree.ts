@@ -31,10 +31,20 @@ export async function createNewFolder(
   const parent = findFolderElements(treeContainer, parentId);
   if (!parent) return;
 
-  // Create the bookmark folder with a temp name
+  // Determine a unique default name
+  const siblings = await chrome.bookmarks.getChildren(parentId);
+  const existingNames = new Set(siblings.map((s) => s.title));
+  let defaultName = "New Folder";
+  if (existingNames.has(defaultName)) {
+    let n = 2;
+    while (existingNames.has(`New Folder (${n})`)) n++;
+    defaultName = `New Folder (${n})`;
+  }
+
+  // Create the bookmark folder
   const folder = await chrome.bookmarks.create({
     parentId,
-    title: "New Folder",
+    title: defaultName,
   });
 
   // Ensure parent is expanded and toggle is visible
@@ -67,7 +77,7 @@ export async function createNewFolder(
   const nameInput = document.createElement("input");
   nameInput.type = "text";
   nameInput.className = "tree-name-input";
-  nameInput.value = "New Folder";
+  nameInput.value = defaultName;
   item.appendChild(nameInput);
 
   wrapper.appendChild(item);
@@ -90,7 +100,7 @@ export async function createNewFolder(
 
   // Finalize: replace input with label, update bookmark title
   const finalize = async () => {
-    const name = nameInput.value.trim() || "New Folder";
+    const name = nameInput.value.trim() || defaultName;
     await chrome.bookmarks.update(folder.id, { title: name });
 
     const label = document.createElement("span");
@@ -129,7 +139,7 @@ export async function createNewFolder(
     }
     if (e.key === "Escape") {
       e.preventDefault();
-      nameInput.value = "New Folder";
+      nameInput.value = defaultName;
       nameInput.blur();
     }
   });
