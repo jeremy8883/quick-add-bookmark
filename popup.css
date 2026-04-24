@@ -169,6 +169,22 @@ body {
   background: #1765cc;
 }
 
+.btn-small {
+  padding: 4px 10px;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.tree-name-input {
+  border: 1px solid #1a73e8;
+  border-radius: 3px;
+  font-size: 13px;
+  padding: 1px 4px;
+  outline: none;
+  font-family: inherit;
+  min-width: 100px;
+}
+
 .btn-danger {
   color: #d93025;
   border-color: #d93025;

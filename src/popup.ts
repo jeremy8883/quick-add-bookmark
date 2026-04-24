@@ -1,4 +1,9 @@
-import { findPathToTarget, buildTreeNode, TreeState } from "./tree";
+import {
+  findPathToTarget,
+  buildTreeNode,
+  createNewFolder,
+  TreeState,
+} from "./tree";
 import {
   findExistingBookmark,
   createBookmark,
@@ -14,6 +19,7 @@ const urlInput = document.getElementById("url") as HTMLInputElement;
 const treeEl = document.getElementById("tree")!;
 const doneBtn = document.getElementById("done") as HTMLButtonElement;
 const removeBtn = document.getElementById("remove") as HTMLButtonElement;
+const newFolderBtn = document.getElementById("new-folder") as HTMLButtonElement;
 
 const treeState: TreeState = {
   selectedFolderId: null,
@@ -122,6 +128,10 @@ removeBtn.addEventListener("click", async () => {
     await removeBookmark(bookmarkId);
   }
   window.close();
+});
+
+newFolderBtn.addEventListener("click", () => {
+  createNewFolder(treeEl, treeState);
 });
 
 init();
