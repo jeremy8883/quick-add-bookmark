@@ -157,6 +157,15 @@ async function init() {
     treeFilter.invalidateCache();
   });
 
+  // Ctrl+N to create new folder
+  document.addEventListener("keydown", async (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "n") {
+      e.preventDefault();
+      await createNewFolder(treeEl, treeState);
+      treeFilter.invalidateCache();
+    }
+  });
+
   // Focus name input with all text selected
   titleInput.focus();
   titleInput.select();
