@@ -149,9 +149,109 @@ export function setupTreeFilter(
   // Typing while tree is focused enters filter mode
   treeContainer.setAttribute("tabindex", "0");
 
+  function getVisibleItems(): HTMLElement[] {
+    return Array.from(
+      treeContainer.querySelectorAll(".tree-item"),
+    ).filter((el) => {
+      // Check all ancestors up to tree container are visible
+      let parent = el.parentElement;
+      while (parent && parent !== treeContainer) {
+        if (
+          parent.classList.contains("tree-children") &&
+          !parent.classList.contains("open")
+        ) {
+          return false;
+        }
+        parent = parent.parentElement;
+      }
+      return true;
+    }) as HTMLElement[];
+  }
+
+  function selectItem(item: HTMLElement) {
+    const prev = treeContainer.querySelector(".selected");
+    if (prev) prev.classList.remove("selected");
+    item.classList.add("selected");
+    state.selectedFolderId = item.dataset.id!;
+    state.onFolderSelected?.(item.dataset.id!);
+    item.scrollIntoView({ block: "nearest" });
+  }
+
   treeContainer.addEventListener("keydown", async (e) => {
     // Don't intercept typing inside inputs (e.g. inline folder rename)
     if ((e.target as HTMLElement).tagName === "INPUT") return;
+
+    // Arrow key navigation (only in folder view, not filter view)
+    if (!isFiltering && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+      e.preventDefault();
+      const items = getVisibleItems();
+      if (items.length === 0) return;
+      const currentIdx = items.findIndex((el) =>
+        el.classList.contains("selected"),
+      );
+      let nextIdx: number;
+      if (e.key === "ArrowUp") {
+        nextIdx = currentIdx <= 0 ? items.length - 1 : currentIdx - 1;
+      } else {
+        nextIdx = currentIdx >= items.length - 1 ? 0 : currentIdx + 1;
+      }
+      selectItem(items[nextIdx]);
+      return;
+    }
+
+    if (!isFiltering && e.key === "ArrowLeft") {
+      e.preventDefault();
+      const selected = treeContainer.querySelector(
+        ".tree-item.selected",
+      ) as HTMLElement | null;
+      if (!selected) return;
+      const wrapper = selected.parentElement!;
+      const children = wrapper.querySelector(
+        ":scope > .tree-children",
+      ) as HTMLElement | null;
+      if (children?.classList.contains("open")) {
+        // Collapse current folder
+        children.classList.remove("open");
+        const toggle = selected.querySelector(".tree-toggle");
+        if (toggle) toggle.classList.remove("expanded");
+      } else {
+        // Move to parent folder
+        const parentChildren = wrapper.parentElement;
+        if (
+          parentChildren?.classList.contains("tree-children") &&
+          parentChildren.parentElement
+        ) {
+          const parentItem = parentChildren.parentElement.querySelector(
+            ":scope > .tree-item",
+          ) as HTMLElement | null;
+          if (parentItem) selectItem(parentItem);
+        }
+      }
+      return;
+    }
+
+    if (!isFiltering && e.key === "ArrowRight") {
+      e.preventDefault();
+      const selected = treeContainer.querySelector(
+        ".tree-item.selected",
+      ) as HTMLElement | null;
+      if (!selected) return;
+      const wrapper = selected.parentElement!;
+      const children = wrapper.querySelector(
+        ":scope > .tree-children",
+      ) as HTMLElement | null;
+      const toggle = selected.querySelector(".tree-toggle");
+      if (
+        children &&
+        toggle &&
+        !toggle.classList.contains("empty") &&
+        !children.classList.contains("open")
+      ) {
+        children.classList.add("open");
+        toggle.classList.add("expanded");
+      }
+      return;
+    }
 
     // Ignore modifier-only keys, navigation, etc.
     if (e.key === "Tab" || e.ctrlKey || e.altKey || e.metaKey) return;
