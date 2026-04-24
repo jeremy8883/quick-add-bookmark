@@ -317,6 +317,25 @@ body {
   color: #d93025;
 }
 
+.error-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  text-align: center;
+  color: #d93025;
+  font-size: 14px;
+  padding: 32px 16px;
+}
+
+.error-detail {
+  margin-top: 8px;
+  font-size: 11px;
+  color: #5f6368;
+  word-break: break-word;
+}
+
 .confirm-backdrop {
   position: fixed;
   top: 0;
@@ -490,6 +509,14 @@ body {
 
   .context-menu-item.danger {
     color: #f28b82;
+  }
+
+  .error-screen {
+    color: #f28b82;
+  }
+
+  .error-detail {
+    color: #9aa0a6;
   }
 
   .confirm-dialog {

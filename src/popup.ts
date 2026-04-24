@@ -74,7 +74,15 @@ async function init() {
     urlInput.value = existing.url!;
   } else {
     const lastFolderId = await getLastFolderId();
-    const parentId = lastFolderId || DEFAULT_FOLDER_ID;
+    let parentId = lastFolderId || DEFAULT_FOLDER_ID;
+
+    // Verify the parent folder still exists (it may have been deleted)
+    try {
+      await chrome.bookmarks.get(parentId);
+    } catch {
+      parentId = DEFAULT_FOLDER_ID;
+    }
+
     const created = await createBookmark(pageTitle, pageUrl, parentId);
     bookmarkId = created.id;
     currentParentId = parentId;
@@ -142,4 +150,18 @@ async function init() {
   titleInput.select();
 }
 
-init();
+init().catch((err) => {
+  console.error("Quick Add Bookmark init failed:", err);
+  const container = document.querySelector(".container") as HTMLElement;
+  if (container) {
+    container.innerHTML = "";
+    container.className = "error-screen";
+    const msg = document.createElement("p");
+    msg.textContent = "Something went wrong. Please try again.";
+    container.appendChild(msg);
+    const detail = document.createElement("p");
+    detail.className = "error-detail";
+    detail.textContent = String(err);
+    container.appendChild(detail);
+  }
+});
