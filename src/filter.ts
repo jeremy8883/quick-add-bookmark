@@ -164,12 +164,21 @@ export function setupTreeFilter(
 
   const filterHint = document.getElementById("filter-hint");
 
+  // Hide hint by default — only show when tree is focused
+  if (filterHint) filterHint.style.display = "none";
+
+  function updateHintVisibility() {
+    if (!filterHint) return;
+    const treeHasFocus = treeContainer === document.activeElement;
+    filterHint.style.display = treeHasFocus && !isFiltering ? "" : "none";
+  }
+
   function enterFilterMode() {
     if (!isFiltering) {
       saveOriginalContent();
       isFiltering = true;
       filterInput.parentElement!.style.display = "";
-      if (filterHint) filterHint.style.display = "none";
+      updateHintVisibility();
     }
   }
 
@@ -178,7 +187,6 @@ export function setupTreeFilter(
     isFiltering = false;
     filterInput.value = "";
     filterInput.parentElement!.style.display = "none";
-    if (filterHint) filterHint.style.display = "";
     restoreOriginalContent();
 
     // Re-highlight the selected item in the restored tree
@@ -194,6 +202,9 @@ export function setupTreeFilter(
 
   // Typing while tree is focused enters filter mode
   treeContainer.setAttribute("tabindex", "2");
+
+  treeContainer.addEventListener("focus", updateHintVisibility);
+  treeContainer.addEventListener("blur", updateHintVisibility);
 
   function getVisibleItems(): HTMLElement[] {
     return Array.from(
