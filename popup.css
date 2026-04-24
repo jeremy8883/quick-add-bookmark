@@ -87,7 +87,7 @@ body {
 .tree {
   border: 1px solid #dadce0;
   border-radius: 4px;
-  max-height: 400px;
+  max-height: 500px;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 4px 0;
