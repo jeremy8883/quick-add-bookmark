@@ -43,6 +43,21 @@ body {
   box-shadow: 0 0 0 1px #1a73e8;
 }
 
+.filter-bar {
+  margin-bottom: 4px;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #1a73e8;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #202124;
+  outline: none;
+  box-shadow: 0 0 0 1px #1a73e8;
+}
+
 .tree {
   border: 1px solid #dadce0;
   border-radius: 4px;
@@ -123,6 +138,22 @@ body {
 .tree-label {
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.tree-filter-item {
+  padding: 6px 10px;
+}
+
+.tree-breadcrumb {
+  color: #9aa0a6;
+  font-size: 12px;
+}
+
+.tree-empty {
+  padding: 12px 10px;
+  color: #9aa0a6;
+  text-align: center;
+  font-style: italic;
 }
 
 .tree-children {

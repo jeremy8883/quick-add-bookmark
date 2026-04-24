@@ -11,6 +11,7 @@ import {
   removeBookmark,
 } from "./bookmarks";
 import { getLastFolderId, setLastFolderId } from "./storage";
+import { setupTreeFilter } from "./filter";
 
 const DEFAULT_FOLDER_ID = "2";
 
@@ -20,6 +21,7 @@ const treeEl = document.getElementById("tree")!;
 const doneBtn = document.getElementById("done") as HTMLButtonElement;
 const removeBtn = document.getElementById("remove") as HTMLButtonElement;
 const newFolderBtn = document.getElementById("new-folder") as HTMLButtonElement;
+const filterInput = document.getElementById("filter-input") as HTMLInputElement;
 
 const treeState: TreeState = {
   selectedFolderId: null,
@@ -108,6 +110,9 @@ async function init() {
   // Scroll selected into view
   const sel = treeEl.querySelector(".selected");
   if (sel) sel.scrollIntoView({ block: "nearest" });
+
+  // Set up type-to-filter on the tree
+  setupTreeFilter(treeEl, filterInput, treeState);
 
   // Auto-save on title/URL changes (debounced)
   let saveTimeout: ReturnType<typeof setTimeout>;
