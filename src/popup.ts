@@ -14,6 +14,7 @@ import { getLastFolderId, setLastFolderId } from "./storage";
 import { setupTreeFilter } from "./filter";
 import { DEFAULT_FOLDER_ID } from "./constants";
 
+const form = document.getElementById("bookmark-form") as HTMLFormElement;
 const titleInput = document.getElementById("title") as HTMLInputElement;
 const urlInput = document.getElementById("url") as HTMLInputElement;
 const treeEl = document.getElementById("tree")!;
@@ -118,8 +119,11 @@ async function init() {
   titleInput.addEventListener("input", debouncedSave);
   urlInput.addEventListener("input", debouncedSave);
 
-  // Actions
-  doneBtn.addEventListener("click", () => window.close());
+  // Actions — form submit closes popup
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    window.close();
+  });
 
   removeBtn.addEventListener("click", async () => {
     if (bookmarkId) {
