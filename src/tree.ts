@@ -1,4 +1,4 @@
-import { FOLDER_SVG } from "./constants";
+import { FOLDER_SVG, ROOT_FOLDER_IDS } from "./constants";
 
 /**
  * Find the wrapper element and children container for a given folder ID in the tree DOM.
@@ -230,18 +230,20 @@ function showContextMenu(
     createNewFolder(treeContainer, state);
   });
 
-  const deleteBtn = document.createElement("button");
-  deleteBtn.className = "context-menu-item danger";
-  deleteBtn.textContent = "Delete";
-  deleteBtn.addEventListener("click", async (ev) => {
-    ev.stopPropagation();
-    closeContextMenu();
-    await deleteFolder(folderId, treeContainer, state);
-  });
-
   menu.appendChild(editBtn);
   menu.appendChild(newFolderBtn);
-  menu.appendChild(deleteBtn);
+
+  if (!ROOT_FOLDER_IDS.has(folderId)) {
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "context-menu-item danger";
+    deleteBtn.textContent = "Delete";
+    deleteBtn.addEventListener("click", async (ev) => {
+      ev.stopPropagation();
+      closeContextMenu();
+      await deleteFolder(folderId, treeContainer, state);
+    });
+    menu.appendChild(deleteBtn);
+  }
   menu.setAttribute("tabindex", "-1");
   document.body.appendChild(menu);
   activeMenu = menu;
