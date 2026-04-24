@@ -10,7 +10,7 @@ interface FolderEntry {
 /**
  * Flatten the bookmark tree into a list of all folders with their ancestor paths.
  */
-function flattenFolders(
+export function flattenFolders(
   nodes: chrome.bookmarks.BookmarkTreeNode[],
   path: string[] = [],
 ): FolderEntry[] {
