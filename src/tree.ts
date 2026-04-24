@@ -451,9 +451,11 @@ export function findPathToTarget(
 function toggleExpand(
   childContainer: HTMLElement,
   toggle: HTMLElement,
+  item: HTMLElement,
 ): boolean {
   const isOpen = childContainer.classList.toggle("open");
   toggle.classList.toggle("expanded", isOpen);
+  item.setAttribute("aria-expanded", String(isOpen));
   return isOpen;
 }
 
@@ -472,9 +474,11 @@ export function buildTreeNode(
   if (!node.children) return null;
 
   const wrapper = document.createElement("div");
+  wrapper.setAttribute("role", "none");
 
   const item = document.createElement("div");
   item.className = "tree-item";
+  item.setAttribute("role", "treeitem");
   item.style.paddingLeft = 8 + depth * 16 + "px";
   item.dataset.id = node.id;
 
@@ -510,10 +514,16 @@ export function buildTreeNode(
   // Children container
   const childContainer = document.createElement("div");
   childContainer.className = "tree-children";
+  childContainer.setAttribute("role", "group");
 
   if (pathToTarget.has(node.id)) {
     childContainer.classList.add("open");
     toggle.classList.add("expanded");
+  }
+
+  // ARIA expanded state
+  if (hasSubfolders) {
+    item.setAttribute("aria-expanded", pathToTarget.has(node.id) ? "true" : "false");
   }
 
   for (const child of node.children) {
@@ -531,6 +541,7 @@ export function buildTreeNode(
   wrapper.appendChild(childContainer);
 
   // Pre-select target
+  item.setAttribute("aria-selected", node.id === targetId ? "true" : "false");
   if (node.id === targetId) {
     item.classList.add("selected");
     state.selectedFolderId = node.id;
@@ -540,7 +551,7 @@ export function buildTreeNode(
   toggle.addEventListener("click", (e) => {
     e.stopPropagation();
     if (hasSubfolders) {
-      toggleExpand(childContainer, toggle);
+      toggleExpand(childContainer, toggle, item);
     }
   });
 
@@ -548,8 +559,12 @@ export function buildTreeNode(
   item.addEventListener("click", (e) => {
     e.stopPropagation();
     const prev = treeContainer.querySelector(".selected");
-    if (prev) prev.classList.remove("selected");
+    if (prev) {
+      prev.classList.remove("selected");
+      prev.setAttribute("aria-selected", "false");
+    }
     item.classList.add("selected");
+    item.setAttribute("aria-selected", "true");
     state.selectedFolderId = node.id;
     state.onFolderSelected?.(node.id);
   });
@@ -558,7 +573,7 @@ export function buildTreeNode(
   item.addEventListener("dblclick", (e) => {
     e.stopPropagation();
     if (hasSubfolders) {
-      toggleExpand(childContainer, toggle);
+      toggleExpand(childContainer, toggle, item);
     }
   });
 

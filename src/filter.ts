@@ -227,8 +227,12 @@ export function setupTreeFilter(
 
   function selectItem(item: HTMLElement) {
     const prev = treeContainer.querySelector(".selected");
-    if (prev) prev.classList.remove("selected");
+    if (prev) {
+      prev.classList.remove("selected");
+      prev.setAttribute("aria-selected", "false");
+    }
     item.classList.add("selected");
+    item.setAttribute("aria-selected", "true");
     state.selectedFolderId = item.dataset.id!;
     state.onFolderSelected?.(item.dataset.id!);
     item.scrollIntoView({ block: "nearest" });
@@ -274,6 +278,7 @@ export function setupTreeFilter(
         children.classList.remove("open");
         const toggle = selected.querySelector(".tree-toggle");
         if (toggle) toggle.classList.remove("expanded");
+        selected.setAttribute("aria-expanded", "false");
       } else {
         // Move to parent folder
         const parentChildren = wrapper.parentElement;
@@ -309,6 +314,7 @@ export function setupTreeFilter(
       ) {
         children.classList.add("open");
         toggle.classList.add("expanded");
+        selected.setAttribute("aria-expanded", "true");
       }
       return;
     }
