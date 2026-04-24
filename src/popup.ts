@@ -72,8 +72,14 @@ async function init() {
     treeEl.style.height = h + "px";
   }
 
-  // Persist tree height when user resizes via CSS resize handle
+  // Persist tree height when user resizes via CSS resize handle.
+  // Clamp so the popup doesn't exceed the viewport (Chrome caps at 600px).
   const resizeObserver = new ResizeObserver(() => {
+    const overflow = document.documentElement.scrollHeight - window.innerHeight;
+    if (overflow > 0) {
+      const clamped = treeEl.offsetHeight - overflow;
+      treeEl.style.height = clamped + "px";
+    }
     setTreeHeight(treeEl.offsetHeight);
   });
   resizeObserver.observe(treeEl);
