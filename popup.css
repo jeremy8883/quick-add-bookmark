@@ -108,6 +108,12 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 4px 0;
+  outline: none;
+}
+
+.tree:focus-visible {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 1px #1a73e8;
 }
 
 .tree-item {
@@ -458,6 +464,11 @@ body {
   .tree {
     border-color: #5f6368;
     background: #303134;
+  }
+
+  .tree:focus-visible {
+    border-color: #8ab4f8;
+    box-shadow: 0 0 0 1px #8ab4f8;
   }
 
   .tree-item:hover {

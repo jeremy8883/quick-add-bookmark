@@ -202,7 +202,7 @@ export const setupTreeFilter = (
   };
 
   // Typing while tree is focused enters filter mode
-  treeContainer.setAttribute("tabindex", "2");
+  treeContainer.setAttribute("tabindex", "2"); // between new-folder (1) and title (3)
 
   treeContainer.addEventListener("focus", updateHintVisibility);
   treeContainer.addEventListener("blur", updateHintVisibility);

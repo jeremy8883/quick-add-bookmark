@@ -175,9 +175,8 @@ const init = async () => {
     }
   });
 
-  // Focus name input with all text selected
-  titleInput.focus();
-  titleInput.select();
+  // Focus the tree so user can immediately navigate folders
+  treeEl.focus();
 };
 
 init().catch((err) => {
