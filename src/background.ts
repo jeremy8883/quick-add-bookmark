@@ -28,7 +28,7 @@ function drawBookmarkIcon(
   if (filled) {
     ctx.fillStyle = "#4285F4";
     ctx.fill();
-    ctx.strokeStyle = "#1a56c4";
+    ctx.strokeStyle = "#4285F4";
   } else {
     ctx.strokeStyle = "#9aa0a6";
   }
