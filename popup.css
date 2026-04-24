@@ -270,6 +270,11 @@ body {
   background: #f1f3f4;
 }
 
+.btn:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 1px;
+}
+
 .btn-primary {
   background: #1a73e8;
   color: #fff;
@@ -316,6 +321,11 @@ body {
   color: #202124;
 }
 
+.btn-icon:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 1px;
+}
+
 .tree-name-input {
   border: 1px solid #1a73e8;
   border-radius: 3px;
@@ -324,6 +334,7 @@ body {
   outline: none;
   font-family: inherit;
   min-width: 100px;
+  max-width: 200px;
 }
 
 .btn-danger {

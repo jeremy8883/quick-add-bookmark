@@ -204,9 +204,11 @@ async function init() {
   titleInput.addEventListener("input", debouncedSave);
   urlInput.addEventListener("input", debouncedSave);
 
-  // Actions — form submit closes popup
-  form.addEventListener("submit", (e) => {
+  // Actions — form submit closes popup (flush pending save first)
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    clearTimeout(saveTimeout);
+    await saveChanges();
     window.close();
   });
 
