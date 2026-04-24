@@ -64,6 +64,25 @@ export function setupTreeFilter(
     }
   }
 
+  function highlightFilterItem(item: HTMLElement) {
+    const prev = treeContainer.querySelector(".highlighted");
+    if (prev) prev.classList.remove("highlighted");
+    item.classList.add("highlighted");
+    item.scrollIntoView({ block: "nearest" });
+  }
+
+  function confirmFilterSelection() {
+    const highlighted = treeContainer.querySelector(
+      ".tree-item.highlighted",
+    ) as HTMLElement | null;
+    if (highlighted) {
+      state.selectedFolderId = highlighted.dataset.id!;
+      state.onFolderSelected?.(highlighted.dataset.id!);
+    }
+    exitFilterMode();
+    treeContainer.focus();
+  }
+
   function renderFilteredList(query: string) {
     const lowerQuery = query.toLowerCase();
     const matches = allFolders.filter(
@@ -82,13 +101,16 @@ export function setupTreeFilter(
       return;
     }
 
+    let first = true;
     for (const folder of matches) {
       const item = document.createElement("div");
       item.className = "tree-item tree-filter-item";
       item.dataset.id = folder.id;
 
-      if (folder.id === state.selectedFolderId) {
-        item.classList.add("selected");
+      // Highlight first item by default
+      if (first) {
+        item.classList.add("highlighted");
+        first = false;
       }
 
       // Folder icon
@@ -109,11 +131,8 @@ export function setupTreeFilter(
       item.appendChild(label);
 
       item.addEventListener("click", () => {
-        const prev = treeContainer.querySelector(".selected");
-        if (prev) prev.classList.remove("selected");
-        item.classList.add("selected");
-        state.selectedFolderId = folder.id;
-        state.onFolderSelected?.(folder.id);
+        highlightFilterItem(item);
+        confirmFilterSelection();
       });
 
       treeContainer.appendChild(item);
@@ -288,12 +307,37 @@ export function setupTreeFilter(
     }
   });
 
-  // Escape in the input exits filter mode
+  // Keyboard navigation in filter mode
   filterInput.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       exitFilterMode();
       treeContainer.focus();
       e.preventDefault();
+      return;
+    }
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+      confirmFilterSelection();
+      return;
+    }
+
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const items = Array.from(
+        treeContainer.querySelectorAll(".tree-item"),
+      ) as HTMLElement[];
+      if (items.length === 0) return;
+      const currentIdx = items.findIndex((el) =>
+        el.classList.contains("highlighted"),
+      );
+      let nextIdx: number;
+      if (e.key === "ArrowDown") {
+        nextIdx = currentIdx >= items.length - 1 ? 0 : currentIdx + 1;
+      } else {
+        nextIdx = currentIdx <= 0 ? items.length - 1 : currentIdx - 1;
+      }
+      highlightFilterItem(items[nextIdx]);
     }
   });
 

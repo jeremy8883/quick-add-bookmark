@@ -85,6 +85,10 @@ body {
   color: #1a73e8;
 }
 
+.tree-item.highlighted {
+  background: #f1f3f4;
+}
+
 .tree-toggle {
   width: 18px;
   height: 18px;
