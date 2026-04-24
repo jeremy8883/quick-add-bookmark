@@ -1,10 +1,5 @@
 const LAST_FOLDER_KEY = "lastBookmarkFolderId";
-const POPUP_SIZE_KEY = "popupSize";
-
-export interface PopupSize {
-  width: number;
-  height: number;
-}
+const TREE_HEIGHT_KEY = "treeHeight";
 
 export async function getLastFolderId(): Promise<string | null> {
   const result = await chrome.storage.local.get(LAST_FOLDER_KEY);
@@ -15,11 +10,11 @@ export async function setLastFolderId(folderId: string): Promise<void> {
   await chrome.storage.local.set({ [LAST_FOLDER_KEY]: folderId });
 }
 
-export async function getPopupSize(): Promise<PopupSize | null> {
-  const result = await chrome.storage.local.get(POPUP_SIZE_KEY);
-  return (result[POPUP_SIZE_KEY] as PopupSize) ?? null;
+export async function getTreeHeight(): Promise<number | null> {
+  const result = await chrome.storage.local.get(TREE_HEIGHT_KEY);
+  return (result[TREE_HEIGHT_KEY] as number) ?? null;
 }
 
-export async function setPopupSize(size: PopupSize): Promise<void> {
-  await chrome.storage.local.set({ [POPUP_SIZE_KEY]: size });
+export async function setTreeHeight(height: number): Promise<void> {
+  await chrome.storage.local.set({ [TREE_HEIGHT_KEY]: height });
 }

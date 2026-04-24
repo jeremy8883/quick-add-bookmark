@@ -13,8 +13,8 @@ import {
 import {
   getLastFolderId,
   setLastFolderId,
-  getPopupSize,
-  setPopupSize,
+  getTreeHeight,
+  setTreeHeight,
 } from "./storage";
 import { setupTreeFilter } from "./filter";
 import { DEFAULT_FOLDER_ID } from "./constants";
@@ -64,89 +64,19 @@ async function saveChanges() {
   }
 }
 
-const MIN_WIDTH = 300;
-const MAX_WIDTH = 800;
-const MIN_HEIGHT = 300;
-const MAX_HEIGHT = 600;
-const DEFAULT_WIDTH = 380;
-
-function clampSize(w: number, h: number) {
-  return {
-    width: Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, w)),
-    height: Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, h)),
-  };
-}
-
-function setupResizeHandles() {
-  const handleRight = document.getElementById("resize-handle-right")!;
-  const handleLeft = document.getElementById("resize-handle-left")!;
-  const container = document.getElementById("bookmark-form")!;
-
-  function attachHandle(handle: HTMLElement, xDirection: 1 | -1) {
-    handle.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      handle.setPointerCapture(e.pointerId);
-
-      const startX = e.clientX;
-      const startY = e.clientY;
-      const startW = document.body.offsetWidth;
-      const startH = document.body.offsetHeight;
-
-      // Expand body to max so the popup window is large enough to
-      // capture pointer events even when dragging outward.
-      // The container keeps the visual size during drag.
-      container.style.width = startW + "px";
-      container.style.height = startH + "px";
-      container.style.overflow = "hidden";
-      document.body.style.width = MAX_WIDTH + "px";
-      document.body.style.height = MAX_HEIGHT + "px";
-      document.body.classList.add("resizing");
-
-      const onMove = (ev: PointerEvent) => {
-        const { width, height } = clampSize(
-          startW + (ev.clientX - startX) * xDirection,
-          startH + (ev.clientY - startY),
-        );
-        container.style.width = width + "px";
-        container.style.height = height + "px";
-      };
-
-      const onUp = () => {
-        handle.removeEventListener("pointermove", onMove);
-        handle.removeEventListener("pointerup", onUp);
-
-        // Apply final size to body, clear container overrides
-        const finalW = container.offsetWidth;
-        const finalH = container.offsetHeight;
-        container.style.width = "";
-        container.style.height = "";
-        container.style.overflow = "";
-        document.body.classList.remove("resizing");
-
-        const size = clampSize(finalW, finalH);
-        document.body.style.width = size.width + "px";
-        document.body.style.height = size.height + "px";
-        setPopupSize(size);
-      };
-
-      handle.addEventListener("pointermove", onMove);
-      handle.addEventListener("pointerup", onUp);
-    });
-  }
-
-  attachHandle(handleRight, 1);
-  attachHandle(handleLeft, -1);
-}
-
 async function init() {
-  // Restore saved popup size
-  const savedSize = await getPopupSize();
-  if (savedSize) {
-    const { width, height } = clampSize(savedSize.width, savedSize.height);
-    document.body.style.width = width + "px";
-    document.body.style.height = height + "px";
+  // Restore saved tree height
+  const savedHeight = await getTreeHeight();
+  if (savedHeight) {
+    const h = Math.max(100, Math.min(600, savedHeight));
+    treeEl.style.height = h + "px";
   }
-  setupResizeHandles();
+
+  // Persist tree height when user resizes via CSS resize handle
+  const resizeObserver = new ResizeObserver(() => {
+    setTreeHeight(treeEl.offsetHeight);
+  });
+  resizeObserver.observe(treeEl);
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const pageTitle = tab.title || "";
