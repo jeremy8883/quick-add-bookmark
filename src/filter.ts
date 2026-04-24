@@ -267,10 +267,13 @@ export function setupTreeFilter(
 
     // Start filtering on printable characters
     if (e.key.length === 1) {
+      e.preventDefault();
+      const char = e.key;
       await ensureFolderList();
       enterFilterMode();
+      filterInput.value = char;
       filterInput.focus();
-      // The character will be typed into the input naturally
+      renderFilteredList(char);
     }
   });
 
