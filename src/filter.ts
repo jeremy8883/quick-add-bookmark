@@ -170,7 +170,7 @@ export function setupTreeFilter(
   }
 
   // Typing while tree is focused enters filter mode
-  treeContainer.setAttribute("tabindex", "0");
+  treeContainer.setAttribute("tabindex", "2");
 
   function getVisibleItems(): HTMLElement[] {
     return Array.from(
