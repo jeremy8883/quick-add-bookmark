@@ -9,10 +9,15 @@ body {
   font-size: 13px;
   color: #202124;
   width: 420px;
+  height: 600px;
 }
 
 .container {
   padding: 16px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .heading-row {
@@ -37,6 +42,18 @@ body {
 
 .field {
   margin-bottom: 12px;
+}
+
+.field-tree {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.field-tree .tree {
+  flex: 1;
+  max-height: none;
 }
 
 .field label {
