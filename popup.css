@@ -12,6 +12,11 @@ body {
   min-width: 300px;
   min-height: 300px;
   position: relative;
+  overflow: hidden;
+}
+
+body.resizing {
+  background: transparent;
 }
 
 .container {

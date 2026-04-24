@@ -80,6 +80,7 @@ function clampSize(w: number, h: number) {
 function setupResizeHandles() {
   const handleRight = document.getElementById("resize-handle-right")!;
   const handleLeft = document.getElementById("resize-handle-left")!;
+  const container = document.getElementById("bookmark-form")!;
 
   function attachHandle(handle: HTMLElement, xDirection: 1 | -1) {
     handle.addEventListener("pointerdown", (e) => {
@@ -91,22 +92,40 @@ function setupResizeHandles() {
       const startW = document.body.offsetWidth;
       const startH = document.body.offsetHeight;
 
+      // Expand body to max so the popup window is large enough to
+      // capture pointer events even when dragging outward.
+      // The container keeps the visual size during drag.
+      container.style.width = startW + "px";
+      container.style.height = startH + "px";
+      container.style.overflow = "hidden";
+      document.body.style.width = MAX_WIDTH + "px";
+      document.body.style.height = MAX_HEIGHT + "px";
+      document.body.classList.add("resizing");
+
       const onMove = (ev: PointerEvent) => {
         const { width, height } = clampSize(
           startW + (ev.clientX - startX) * xDirection,
           startH + (ev.clientY - startY),
         );
-        document.body.style.width = width + "px";
-        document.body.style.height = height + "px";
+        container.style.width = width + "px";
+        container.style.height = height + "px";
       };
 
       const onUp = () => {
         handle.removeEventListener("pointermove", onMove);
         handle.removeEventListener("pointerup", onUp);
-        const size = clampSize(
-          document.body.offsetWidth,
-          document.body.offsetHeight,
-        );
+
+        // Apply final size to body, clear container overrides
+        const finalW = container.offsetWidth;
+        const finalH = container.offsetHeight;
+        container.style.width = "";
+        container.style.height = "";
+        container.style.overflow = "";
+        document.body.classList.remove("resizing");
+
+        const size = clampSize(finalW, finalH);
+        document.body.style.width = size.width + "px";
+        document.body.style.height = size.height + "px";
         setPopupSize(size);
       };
 
