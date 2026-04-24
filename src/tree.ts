@@ -129,6 +129,7 @@ export async function createNewFolder(
 
     // Fire selection callback so bookmark gets moved to new folder
     state.onFolderSelected?.(folder.id);
+    treeContainer.focus();
   };
 
   nameInput.addEventListener("keydown", (e) => {
@@ -310,6 +311,7 @@ function startRename(
     newLabel.textContent = name;
     nameInput.replaceWith(newLabel);
     state.onTreeChanged?.();
+    treeContainer.focus();
   };
 
   nameInput.addEventListener("keydown", (ev) => {
