@@ -142,20 +142,21 @@ export interface TreeState {
 }
 
 let activeMenu: HTMLElement | null = null;
+let activeBackdrop: HTMLElement | null = null;
+
+export function isContextMenuOpen(): boolean {
+  return activeMenu !== null;
+}
 
 function closeContextMenu() {
   if (activeMenu) {
     activeMenu.remove();
     activeMenu = null;
   }
-}
-
-let contextMenuListenersAttached = false;
-function ensureContextMenuListeners() {
-  if (contextMenuListenersAttached) return;
-  contextMenuListenersAttached = true;
-  document.addEventListener("click", closeContextMenu);
-  document.addEventListener("contextmenu", closeContextMenu);
+  if (activeBackdrop) {
+    activeBackdrop.remove();
+    activeBackdrop = null;
+  }
 }
 
 function showContextMenu(
@@ -165,8 +166,22 @@ function showContextMenu(
   state: TreeState,
 ) {
   e.preventDefault();
-  ensureContextMenuListeners();
   closeContextMenu();
+
+  // Transparent backdrop to block clicks behind the menu
+  const backdrop = document.createElement("div");
+  backdrop.className = "context-menu-backdrop";
+  backdrop.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    closeContextMenu();
+  });
+  backdrop.addEventListener("contextmenu", (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    closeContextMenu();
+  });
+  document.body.appendChild(backdrop);
+  activeBackdrop = backdrop;
 
   const menu = document.createElement("div");
   menu.className = "context-menu";
@@ -211,6 +226,7 @@ function showContextMenu(
   menu.appendChild(editBtn);
   menu.appendChild(newFolderBtn);
   menu.appendChild(deleteBtn);
+  menu.setAttribute("tabindex", "-1");
   document.body.appendChild(menu);
   activeMenu = menu;
 
@@ -222,6 +238,33 @@ function showContextMenu(
   if (rect.bottom > window.innerHeight) {
     menu.style.top = window.innerHeight - rect.height + "px";
   }
+
+  // Focus menu for keyboard navigation
+  menu.focus();
+  const items = Array.from(
+    menu.querySelectorAll(".context-menu-item"),
+  ) as HTMLElement[];
+  if (items.length > 0) items[0].classList.add("focused");
+
+  menu.addEventListener("keydown", (ev) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+    const focused = menu.querySelector(".context-menu-item.focused") as HTMLElement | null;
+    const idx = focused ? items.indexOf(focused) : -1;
+
+    if (ev.key === "ArrowDown") {
+      if (focused) focused.classList.remove("focused");
+      items[(idx + 1) % items.length].classList.add("focused");
+    } else if (ev.key === "ArrowUp") {
+      if (focused) focused.classList.remove("focused");
+      items[(idx - 1 + items.length) % items.length].classList.add("focused");
+    } else if (ev.key === "Enter") {
+      if (focused) focused.click();
+    } else if (ev.key === "Escape") {
+      closeContextMenu();
+      treeContainer.focus();
+    }
+  });
 }
 
 function startRename(

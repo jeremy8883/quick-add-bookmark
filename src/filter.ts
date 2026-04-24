@@ -1,4 +1,4 @@
-import { TreeState } from "./tree";
+import { TreeState, isContextMenuOpen } from "./tree";
 import { FOLDER_SVG } from "./constants";
 
 interface FolderEntry {
@@ -237,6 +237,9 @@ export function setupTreeFilter(
   treeContainer.addEventListener("keydown", async (e) => {
     // Don't intercept typing inside inputs (e.g. inline folder rename)
     if ((e.target as HTMLElement).tagName === "INPUT") return;
+
+    // Don't intercept keys when context menu is open
+    if (isContextMenuOpen()) return;
 
     // Arrow key navigation (only in folder view, not filter view)
     if (!isFiltering && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
