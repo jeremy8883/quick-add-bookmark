@@ -117,11 +117,13 @@ export async function createNewFolder(
   };
 
   nameInput.addEventListener("keydown", (e) => {
+    e.stopPropagation();
     if (e.key === "Enter") {
       e.preventDefault();
       nameInput.blur();
     }
     if (e.key === "Escape") {
+      e.preventDefault();
       nameInput.value = "New Folder";
       nameInput.blur();
     }
