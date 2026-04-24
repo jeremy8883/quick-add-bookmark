@@ -492,8 +492,8 @@ export function buildTreeNode(
   label.textContent = node.title || "Bookmarks";
   item.appendChild(label);
 
-  // Bookmark count (non-folder children)
-  const bookmarkCount = node.children.filter((c) => !c.children).length;
+  // Bookmark count (recursive — all non-folder descendants)
+  const bookmarkCount = countBookmarksDeep(node);
   if (bookmarkCount > 0) {
     const count = document.createElement("span");
     count.className = "tree-count";
