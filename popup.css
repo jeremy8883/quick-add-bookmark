@@ -305,3 +305,144 @@ body {
 .context-menu-item.danger {
   color: #d93025;
 }
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #e8eaed;
+    background: #202124;
+  }
+
+  .field label {
+    color: #9aa0a6;
+  }
+
+  .field > input {
+    background: #303134;
+    border-color: #5f6368;
+    color: #e8eaed;
+  }
+
+  .field > input:focus {
+    border-color: #8ab4f8;
+    box-shadow: 0 0 0 1px #8ab4f8;
+  }
+
+  .filter-hint {
+    color: #6e7278;
+  }
+
+  .filter-input {
+    background: #303134;
+    border-color: #8ab4f8;
+    color: #e8eaed;
+    box-shadow: 0 0 0 1px #8ab4f8;
+  }
+
+  .tree {
+    border-color: #5f6368;
+    background: #303134;
+  }
+
+  .tree-item:hover {
+    background: #3c4043;
+  }
+
+  .tree-item.selected {
+    background: #394457;
+    color: #8ab4f8;
+  }
+
+  .tree-item.highlighted {
+    background: #3c4043;
+  }
+
+  .tree-toggle {
+    color: #9aa0a6;
+  }
+
+  .tree-toggle:hover {
+    background: #5f6368;
+  }
+
+  .tree-toggle::after {
+    border-left-color: #9aa0a6;
+  }
+
+  .tree-icon {
+    color: #9aa0a6;
+  }
+
+  .tree-count {
+    color: #6e7278;
+  }
+
+  .tree-breadcrumb {
+    color: #6e7278;
+  }
+
+  .tree-empty {
+    color: #6e7278;
+  }
+
+  .btn {
+    background: #303134;
+    border-color: #5f6368;
+    color: #e8eaed;
+  }
+
+  .btn:hover {
+    background: #3c4043;
+  }
+
+  .btn-primary {
+    background: #8ab4f8;
+    color: #202124;
+    border-color: #8ab4f8;
+  }
+
+  .btn-primary:hover {
+    background: #aecbfa;
+  }
+
+  .btn-icon {
+    color: #9aa0a6;
+  }
+
+  .btn-icon:hover {
+    background: #3c4043;
+    color: #e8eaed;
+  }
+
+  .tree-name-input {
+    background: #303134;
+    border-color: #8ab4f8;
+    color: #e8eaed;
+  }
+
+  .btn-danger {
+    color: #f28b82;
+    border-color: #f28b82;
+  }
+
+  .btn-danger:hover {
+    background: #3c2a28;
+  }
+
+  .context-menu {
+    background: #303134;
+    border-color: #5f6368;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .context-menu-item {
+    color: #e8eaed;
+  }
+
+  .context-menu-item:hover {
+    background: #3c4043;
+  }
+
+  .context-menu-item.danger {
+    color: #f28b82;
+  }
+}
