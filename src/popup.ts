@@ -136,6 +136,10 @@ async function init() {
     await createNewFolder(treeEl, treeState);
     treeFilter.invalidateCache();
   });
+
+  // Focus name input with all text selected
+  titleInput.focus();
+  titleInput.select();
 }
 
 init();
