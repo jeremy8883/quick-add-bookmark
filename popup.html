@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="field">
+      <label for="title">Name</label>
+      <input type="text" id="title" spellcheck="false">
+    </div>
+    <div class="field">
+      <label for="url">URL</label>
+      <input type="text" id="url" spellcheck="false">
+    </div>
+    <div class="field">
+      <label>Folder</label>
+      <div id="tree" class="tree"></div>
+    </div>
+    <div class="actions">
+      <button id="remove" class="btn btn-danger" style="display:none">Remove</button>
+      <div class="spacer"></div>
+      <button id="cancel" class="btn">Cancel</button>
+      <button id="save" class="btn btn-primary">Save</button>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
