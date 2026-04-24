@@ -12,8 +12,7 @@ import {
 } from "./bookmarks";
 import { getLastFolderId, setLastFolderId } from "./storage";
 import { setupTreeFilter } from "./filter";
-
-const DEFAULT_FOLDER_ID = "2";
+import { DEFAULT_FOLDER_ID } from "./constants";
 
 const titleInput = document.getElementById("title") as HTMLInputElement;
 const urlInput = document.getElementById("url") as HTMLInputElement;
@@ -73,7 +72,6 @@ async function init() {
     titleInput.value = existing.title;
     urlInput.value = existing.url!;
   } else {
-    // Create the bookmark immediately
     const lastFolderId = await getLastFolderId();
     const parentId = lastFolderId || DEFAULT_FOLDER_ID;
     const created = await createBookmark(pageTitle, pageUrl, parentId);
@@ -81,18 +79,14 @@ async function init() {
     currentParentId = parentId;
   }
 
-  // Show remove button now that we have a bookmark
   removeBtn.style.display = "";
 
-  // Determine target folder for tree
-  const targetFolderId = currentParentId || DEFAULT_FOLDER_ID;
-
   // Build folder tree
+  const targetFolderId = currentParentId || DEFAULT_FOLDER_ID;
   const tree = await chrome.bookmarks.getTree();
   const pathToTarget = new Set<string>();
   findPathToTarget(tree[0], targetFolderId, pathToTarget);
 
-  // Wire up folder selection to auto-save
   treeState.onFolderSelected = () => saveChanges();
 
   for (const root of tree[0].children || []) {
@@ -107,12 +101,11 @@ async function init() {
     if (el) treeEl.appendChild(el);
   }
 
-  // Scroll selected into view
   const sel = treeEl.querySelector(".selected");
   if (sel) sel.scrollIntoView({ block: "nearest" });
 
-  // Set up type-to-filter on the tree
-  setupTreeFilter(treeEl, filterInput, treeState);
+  // Type-to-filter
+  const treeFilter = setupTreeFilter(treeEl, filterInput, treeState);
 
   // Auto-save on title/URL changes (debounced)
   let saveTimeout: ReturnType<typeof setTimeout>;
@@ -122,21 +115,21 @@ async function init() {
   };
   titleInput.addEventListener("input", debouncedSave);
   urlInput.addEventListener("input", debouncedSave);
+
+  // Actions
+  doneBtn.addEventListener("click", () => window.close());
+
+  removeBtn.addEventListener("click", async () => {
+    if (bookmarkId) {
+      await removeBookmark(bookmarkId);
+    }
+    window.close();
+  });
+
+  newFolderBtn.addEventListener("click", async () => {
+    await createNewFolder(treeEl, treeState);
+    treeFilter.invalidateCache();
+  });
 }
-
-// --- Actions ---
-
-doneBtn.addEventListener("click", () => window.close());
-
-removeBtn.addEventListener("click", async () => {
-  if (bookmarkId) {
-    await removeBookmark(bookmarkId);
-  }
-  window.close();
-});
-
-newFolderBtn.addEventListener("click", () => {
-  createNewFolder(treeEl, treeState);
-});
 
 init();

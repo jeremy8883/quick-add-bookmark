@@ -1,4 +1,4 @@
-const DEFAULT_FOLDER_ID = "2"; // "Other Bookmarks"
+import { DEFAULT_FOLDER_ID } from "./constants";
 
 export async function findExistingBookmark(
   url: string,

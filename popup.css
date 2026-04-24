@@ -27,7 +27,7 @@ body {
   margin-bottom: 4px;
 }
 
-.field input {
+.field > input {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid #dadce0;
@@ -38,7 +38,7 @@ body {
   transition: border-color 0.15s;
 }
 
-.field input:focus {
+.field > input:focus {
   border-color: #1a73e8;
   box-shadow: 0 0 0 1px #1a73e8;
 }
