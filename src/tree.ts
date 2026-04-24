@@ -112,6 +112,11 @@ export async function createNewFolder(
       e.stopPropagation();
     });
 
+    item.addEventListener("contextmenu", (e) => {
+      e.stopPropagation();
+      showContextMenu(e, folder.id, treeContainer, state);
+    });
+
     // Fire selection callback so bookmark gets moved to new folder
     state.onFolderSelected?.(folder.id);
   };
