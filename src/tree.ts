@@ -138,6 +138,154 @@ export async function createNewFolder(
 export interface TreeState {
   selectedFolderId: string | null;
   onFolderSelected: ((folderId: string) => void) | null;
+  onTreeChanged?: (() => void) | null;
+}
+
+let activeMenu: HTMLElement | null = null;
+
+function closeContextMenu() {
+  if (activeMenu) {
+    activeMenu.remove();
+    activeMenu = null;
+  }
+}
+
+document.addEventListener("click", closeContextMenu);
+document.addEventListener("contextmenu", closeContextMenu);
+
+function showContextMenu(
+  e: MouseEvent,
+  folderId: string,
+  treeContainer: HTMLElement,
+  state: TreeState,
+) {
+  e.preventDefault();
+  closeContextMenu();
+
+  const menu = document.createElement("div");
+  menu.className = "context-menu";
+  menu.style.left = e.clientX + "px";
+  menu.style.top = e.clientY + "px";
+
+  const editBtn = document.createElement("button");
+  editBtn.className = "context-menu-item";
+  editBtn.textContent = "Edit";
+  editBtn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    closeContextMenu();
+    startRename(folderId, treeContainer, state);
+  });
+
+  const newFolderBtn = document.createElement("button");
+  newFolderBtn.className = "context-menu-item";
+  newFolderBtn.textContent = "New folder";
+  newFolderBtn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    closeContextMenu();
+    // Select the folder first, then create subfolder
+    const prev = treeContainer.querySelector(".selected");
+    if (prev) prev.classList.remove("selected");
+    const item = treeContainer.querySelector(
+      `.tree-item[data-id="${folderId}"]`,
+    );
+    if (item) item.classList.add("selected");
+    state.selectedFolderId = folderId;
+    createNewFolder(treeContainer, state);
+  });
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "context-menu-item danger";
+  deleteBtn.textContent = "Delete";
+  deleteBtn.addEventListener("click", async (ev) => {
+    ev.stopPropagation();
+    closeContextMenu();
+    await deleteFolder(folderId, treeContainer, state);
+  });
+
+  menu.appendChild(editBtn);
+  menu.appendChild(newFolderBtn);
+  menu.appendChild(deleteBtn);
+  document.body.appendChild(menu);
+  activeMenu = menu;
+
+  // Keep menu within viewport
+  const rect = menu.getBoundingClientRect();
+  if (rect.right > window.innerWidth) {
+    menu.style.left = window.innerWidth - rect.width + "px";
+  }
+  if (rect.bottom > window.innerHeight) {
+    menu.style.top = window.innerHeight - rect.height + "px";
+  }
+}
+
+function startRename(
+  folderId: string,
+  treeContainer: HTMLElement,
+  state: TreeState,
+) {
+  const els = findFolderElements(treeContainer, folderId);
+  if (!els) return;
+
+  const label = els.item.querySelector(".tree-label") as HTMLElement;
+  if (!label) return;
+
+  const currentName = label.textContent || "";
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.className = "tree-name-input";
+  nameInput.value = currentName;
+  label.replaceWith(nameInput);
+  nameInput.focus();
+  nameInput.select();
+
+  const finalize = async () => {
+    const name = nameInput.value.trim() || currentName;
+    await chrome.bookmarks.update(folderId, { title: name });
+    const newLabel = document.createElement("span");
+    newLabel.className = "tree-label";
+    newLabel.textContent = name;
+    nameInput.replaceWith(newLabel);
+    state.onTreeChanged?.();
+  };
+
+  nameInput.addEventListener("keydown", (ev) => {
+    ev.stopPropagation();
+    if (ev.key === "Enter") {
+      ev.preventDefault();
+      nameInput.blur();
+    }
+    if (ev.key === "Escape") {
+      ev.preventDefault();
+      nameInput.value = currentName;
+      nameInput.blur();
+    }
+  });
+
+  nameInput.addEventListener("blur", finalize, { once: true });
+}
+
+async function deleteFolder(
+  folderId: string,
+  treeContainer: HTMLElement,
+  state: TreeState,
+) {
+  const els = findFolderElements(treeContainer, folderId);
+  if (!els) return;
+
+  await chrome.bookmarks.removeTree(folderId);
+  els.wrapper.remove();
+
+  if (state.selectedFolderId === folderId) {
+    state.selectedFolderId = null;
+    const first = treeContainer.querySelector(".tree-item") as HTMLElement;
+    if (first) {
+      first.classList.add("selected");
+      state.selectedFolderId = first.dataset.id!;
+      state.onFolderSelected?.(first.dataset.id!);
+    }
+  }
+
+  state.onTreeChanged?.();
 }
 
 /**
@@ -276,6 +424,12 @@ export function buildTreeNode(
     if (hasSubfolders) {
       toggleExpand(childContainer, toggle);
     }
+  });
+
+  // Right-click context menu
+  item.addEventListener("contextmenu", (e) => {
+    e.stopPropagation();
+    showContextMenu(e, node.id, treeContainer, state);
   });
 
   return wrapper;

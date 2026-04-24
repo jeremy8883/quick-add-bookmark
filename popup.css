@@ -263,3 +263,35 @@ body {
 .btn-danger:hover {
   background: #fce8e6;
 }
+
+.context-menu {
+  position: fixed;
+  background: #fff;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  z-index: 100;
+  min-width: 140px;
+}
+
+.context-menu-item {
+  display: block;
+  width: 100%;
+  padding: 6px 16px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  color: #202124;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.context-menu-item:hover {
+  background: #f1f3f4;
+}
+
+.context-menu-item.danger {
+  color: #d93025;
+}

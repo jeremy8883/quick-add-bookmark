@@ -107,6 +107,8 @@ async function init() {
   // Type-to-filter
   const treeFilter = setupTreeFilter(treeEl, filterInput, treeState);
 
+  treeState.onTreeChanged = () => treeFilter.invalidateCache();
+
   // Auto-save on title/URL changes (debounced)
   let saveTimeout: ReturnType<typeof setTimeout>;
   const debouncedSave = () => {
