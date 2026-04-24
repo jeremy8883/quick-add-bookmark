@@ -10,7 +10,12 @@ import {
   updateBookmark,
   removeBookmark,
 } from "./bookmarks";
-import { getLastFolderId, setLastFolderId } from "./storage";
+import {
+  getLastFolderId,
+  setLastFolderId,
+  getPopupSize,
+  setPopupSize,
+} from "./storage";
 import { setupTreeFilter } from "./filter";
 import { DEFAULT_FOLDER_ID } from "./constants";
 
@@ -59,7 +64,67 @@ async function saveChanges() {
   }
 }
 
+const MIN_WIDTH = 300;
+const MAX_WIDTH = 800;
+const MIN_HEIGHT = 300;
+const MAX_HEIGHT = 600;
+const DEFAULT_WIDTH = 380;
+
+function clampSize(w: number, h: number) {
+  return {
+    width: Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, w)),
+    height: Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, h)),
+  };
+}
+
+function setupResizeHandle() {
+  const handle = document.getElementById("resize-handle")!;
+  let startX = 0;
+  let startY = 0;
+  let startW = 0;
+  let startH = 0;
+
+  handle.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    startX = e.clientX;
+    startY = e.clientY;
+    startW = document.body.offsetWidth;
+    startH = document.body.offsetHeight;
+
+    const onMove = (ev: MouseEvent) => {
+      const { width, height } = clampSize(
+        startW + (ev.clientX - startX),
+        startH + (ev.clientY - startY),
+      );
+      document.body.style.width = width + "px";
+      document.body.style.height = height + "px";
+    };
+
+    const onUp = () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      const size = clampSize(
+        document.body.offsetWidth,
+        document.body.offsetHeight,
+      );
+      setPopupSize(size);
+    };
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  });
+}
+
 async function init() {
+  // Restore saved popup size
+  const savedSize = await getPopupSize();
+  if (savedSize) {
+    const { width, height } = clampSize(savedSize.width, savedSize.height);
+    document.body.style.width = width + "px";
+    document.body.style.height = height + "px";
+  }
+  setupResizeHandle();
+
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const pageTitle = tab.title || "";
   const pageUrl = tab.url || "";
