@@ -10,12 +10,7 @@ import {
   updateBookmark,
   removeBookmark,
 } from "./bookmarks";
-import {
-  getLastFolderId,
-  setLastFolderId,
-  getTreeHeight,
-  setTreeHeight,
-} from "./storage";
+import { getLastFolderId, setLastFolderId } from "./storage";
 import { setupTreeFilter } from "./filter";
 import { DEFAULT_FOLDER_ID } from "./constants";
 
@@ -65,25 +60,6 @@ async function saveChanges() {
 }
 
 async function init() {
-  // Restore saved tree height
-  const savedHeight = await getTreeHeight();
-  if (savedHeight) {
-    const h = Math.max(100, Math.min(600, savedHeight));
-    treeEl.style.height = h + "px";
-  }
-
-  // Persist tree height when user resizes via CSS resize handle.
-  // Clamp so the popup doesn't exceed the viewport (Chrome caps at 600px).
-  const resizeObserver = new ResizeObserver(() => {
-    const overflow = document.documentElement.scrollHeight - window.innerHeight;
-    if (overflow > 0) {
-      const clamped = treeEl.offsetHeight - overflow;
-      treeEl.style.height = clamped + "px";
-    }
-    setTreeHeight(treeEl.offsetHeight);
-  });
-  resizeObserver.observe(treeEl);
-
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const pageTitle = tab.title || "";
   const pageUrl = tab.url || "";
