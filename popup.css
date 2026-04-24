@@ -15,6 +15,13 @@ body {
   padding: 16px;
 }
 
+.popup-heading {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #202124;
+}
+
 .field {
   margin-bottom: 12px;
 }
@@ -374,6 +381,10 @@ body {
   body {
     color: #e8eaed;
     background: #202124;
+  }
+
+  .popup-heading {
+    color: #e8eaed;
   }
 
   .field label {

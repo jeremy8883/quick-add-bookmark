@@ -22,6 +22,7 @@ const doneBtn = document.getElementById("done") as HTMLButtonElement;
 const removeBtn = document.getElementById("remove") as HTMLButtonElement;
 const newFolderBtn = document.getElementById("new-folder") as HTMLButtonElement;
 const filterInput = document.getElementById("filter-input") as HTMLInputElement;
+const heading = document.getElementById("heading")!;
 
 const treeState: TreeState = {
   selectedFolderId: null,
@@ -72,6 +73,7 @@ async function init() {
     currentParentId = existing.parentId!;
     titleInput.value = existing.title;
     urlInput.value = existing.url!;
+    heading.textContent = "Edit bookmark";
   } else {
     const lastFolderId = await getLastFolderId();
     let parentId = lastFolderId || DEFAULT_FOLDER_ID;
@@ -86,6 +88,7 @@ async function init() {
     const created = await createBookmark(pageTitle, pageUrl, parentId);
     bookmarkId = created.id;
     currentParentId = parentId;
+    heading.textContent = "Bookmark added";
   }
 
   removeBtn.style.display = "";
