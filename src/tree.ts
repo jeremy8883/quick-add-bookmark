@@ -150,8 +150,13 @@ function closeContextMenu() {
   }
 }
 
-document.addEventListener("click", closeContextMenu);
-document.addEventListener("contextmenu", closeContextMenu);
+let contextMenuListenersAttached = false;
+function ensureContextMenuListeners() {
+  if (contextMenuListenersAttached) return;
+  contextMenuListenersAttached = true;
+  document.addEventListener("click", closeContextMenu);
+  document.addEventListener("contextmenu", closeContextMenu);
+}
 
 function showContextMenu(
   e: MouseEvent,
@@ -160,6 +165,7 @@ function showContextMenu(
   state: TreeState,
 ) {
   e.preventDefault();
+  ensureContextMenuListeners();
   closeContextMenu();
 
   const menu = document.createElement("div");
