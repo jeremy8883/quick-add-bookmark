@@ -17,8 +17,8 @@
   "commands": {
     "_execute_action": {
       "suggested_key": {
-        "default": "Ctrl+Shift+D",
-        "mac": "Command+Shift+D"
+        "default": "Alt+Shift+D",
+        "mac": "MacCtrl+Shift+D"
       },
       "description": "Add bookmark with folder selection"
     }
