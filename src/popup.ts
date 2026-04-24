@@ -23,6 +23,7 @@ const removeBtn = document.getElementById("remove") as HTMLButtonElement;
 const newFolderBtn = document.getElementById("new-folder") as HTMLButtonElement;
 const filterInput = document.getElementById("filter-input") as HTMLInputElement;
 const heading = document.getElementById("heading")!;
+const favicon = document.getElementById("favicon") as HTMLImageElement;
 
 const treeState: TreeState = {
   selectedFolderId: null,
@@ -65,6 +66,14 @@ async function init() {
 
   titleInput.value = pageTitle;
   urlInput.value = pageUrl;
+
+  // Show favicon
+  if (tab.favIconUrl) {
+    favicon.src = tab.favIconUrl;
+    favicon.style.display = "";
+  } else {
+    favicon.style.display = "none";
+  }
 
   // Check if already bookmarked, or create immediately
   const existing = await findExistingBookmark(pageUrl);

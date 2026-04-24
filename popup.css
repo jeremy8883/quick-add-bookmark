@@ -15,11 +15,24 @@ body {
   padding: 16px;
 }
 
+.heading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
 .popup-heading {
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 12px;
   color: #202124;
+}
+
+.favicon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 2px;
 }
 
 .field {
