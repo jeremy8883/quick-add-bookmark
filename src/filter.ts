@@ -80,7 +80,30 @@ export function setupTreeFilter(
       state.onFolderSelected?.(highlighted.dataset.id!);
     }
     exitFilterMode();
+    expandToSelected();
     treeContainer.focus();
+  }
+
+  function expandToSelected() {
+    if (!state.selectedFolderId) return;
+    const item = treeContainer.querySelector(
+      `.tree-item[data-id="${state.selectedFolderId}"]`,
+    ) as HTMLElement | null;
+    if (!item) return;
+
+    // Walk up from the selected item, opening all ancestor tree-children
+    let el: HTMLElement | null = item.parentElement;
+    while (el && el !== treeContainer) {
+      if (el.classList.contains("tree-children")) {
+        el.classList.add("open");
+        const parentItem = el.parentElement?.querySelector(
+          ":scope > .tree-item .tree-toggle",
+        ) as HTMLElement | null;
+        if (parentItem) parentItem.classList.add("expanded");
+      }
+      el = el.parentElement as HTMLElement | null;
+    }
+    item.scrollIntoView({ block: "nearest" });
   }
 
   function renderFilteredList(query: string) {
