@@ -317,6 +317,40 @@ body {
   color: #d93025;
 }
 
+.confirm-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-dialog {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 300px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-message {
+  font-size: 13px;
+  color: #202124;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 @media (prefers-color-scheme: dark) {
   body {
     color: #e8eaed;
@@ -456,5 +490,14 @@ body {
 
   .context-menu-item.danger {
     color: #f28b82;
+  }
+
+  .confirm-dialog {
+    background: #303134;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
+
+  .confirm-message {
+    color: #e8eaed;
   }
 }

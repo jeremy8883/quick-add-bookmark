@@ -313,6 +313,17 @@ function startRename(
   nameInput.addEventListener("blur", finalize, { once: true });
 }
 
+function countBookmarksDeep(
+  node: chrome.bookmarks.BookmarkTreeNode,
+): number {
+  if (!node.children) return 1; // leaf = bookmark
+  let count = 0;
+  for (const child of node.children) {
+    count += countBookmarksDeep(child);
+  }
+  return count;
+}
+
 async function deleteFolder(
   folderId: string,
   treeContainer: HTMLElement,
@@ -320,6 +331,18 @@ async function deleteFolder(
 ) {
   const els = findFolderElements(treeContainer, folderId);
   if (!els) return;
+
+  // Check if folder has bookmarks — confirm before deleting
+  const [folder] = await chrome.bookmarks.getSubTree(folderId);
+  const leafCount = countBookmarksDeep(folder);
+
+  if (leafCount > 0) {
+    const confirmed = await showDeleteConfirmation(
+      folder.title || "Untitled",
+      leafCount,
+    );
+    if (!confirmed) return;
+  }
 
   await chrome.bookmarks.removeTree(folderId);
   els.wrapper.remove();
@@ -335,6 +358,51 @@ async function deleteFolder(
   }
 
   state.onTreeChanged?.();
+}
+
+function showDeleteConfirmation(
+  folderName: string,
+  bookmarkCount: number,
+): Promise<boolean> {
+  return new Promise((resolve) => {
+    const backdrop = document.createElement("div");
+    backdrop.className = "confirm-backdrop";
+
+    const dialog = document.createElement("div");
+    dialog.className = "confirm-dialog";
+
+    const msg = document.createElement("p");
+    msg.className = "confirm-message";
+    msg.textContent = `Folder "${folderName}" contains ${bookmarkCount} bookmark${bookmarkCount !== 1 ? "s" : ""}. Confirm deletion?`;
+    dialog.appendChild(msg);
+
+    const actions = document.createElement("div");
+    actions.className = "confirm-actions";
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.className = "btn";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.addEventListener("click", () => {
+      backdrop.remove();
+      resolve(false);
+    });
+
+    const confirmBtn = document.createElement("button");
+    confirmBtn.className = "btn btn-danger";
+    confirmBtn.textContent = "Delete";
+    confirmBtn.addEventListener("click", () => {
+      backdrop.remove();
+      resolve(true);
+    });
+
+    actions.appendChild(cancelBtn);
+    actions.appendChild(confirmBtn);
+    dialog.appendChild(actions);
+    backdrop.appendChild(dialog);
+    document.body.appendChild(backdrop);
+
+    cancelBtn.focus();
+  });
 }
 
 /**
