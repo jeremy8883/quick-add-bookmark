@@ -1,9 +1,10 @@
 import {
   findPathToTarget,
   buildTreeNode,
-  createNewFolder,
   TreeState,
 } from "./tree";
+import { createNewFolder } from "./tree-actions";
+import { updateCountsOnMove } from "./tree-counts";
 import {
   findExistingBookmark,
   createBookmark,
@@ -18,7 +19,6 @@ const form = document.getElementById("bookmark-form") as HTMLFormElement;
 const titleInput = document.getElementById("title") as HTMLInputElement;
 const urlInput = document.getElementById("url") as HTMLInputElement;
 const treeEl = document.getElementById("tree")!;
-const doneBtn = document.getElementById("done") as HTMLButtonElement;
 const removeBtn = document.getElementById("remove") as HTMLButtonElement;
 const newFolderBtn = document.getElementById("new-folder") as HTMLButtonElement;
 const filterInput = document.getElementById("filter-input") as HTMLInputElement;
@@ -33,33 +33,36 @@ const treeState: TreeState = {
 let bookmarkId: string | null = null;
 let currentParentId: string | null = null;
 
-async function saveChanges() {
+const saveChanges = async () => {
   if (!bookmarkId) return;
   const title = titleInput.value.trim();
   const url = urlInput.value.trim();
   if (!url) return;
+
+  const oldParent = currentParentId!;
 
   await updateBookmark(
     bookmarkId,
     title,
     url,
     treeState.selectedFolderId,
-    currentParentId!,
+    oldParent,
   );
 
   if (
     treeState.selectedFolderId &&
-    treeState.selectedFolderId !== currentParentId
+    treeState.selectedFolderId !== oldParent
   ) {
+    updateCountsOnMove(treeEl, oldParent, treeState.selectedFolderId);
     currentParentId = treeState.selectedFolderId;
   }
 
   if (treeState.selectedFolderId) {
     await setLastFolderId(treeState.selectedFolderId);
   }
-}
+};
 
-async function init() {
+const init = async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   const pageTitle = tab.title || "";
   const pageUrl = tab.url || "";
@@ -100,6 +103,7 @@ async function init() {
     heading.textContent = "Bookmark added";
   }
 
+  treeState.editingBookmarkId = bookmarkId;
   removeBtn.style.display = "";
 
   // Build folder tree
@@ -109,6 +113,9 @@ async function init() {
   findPathToTarget(tree[0], targetFolderId, pathToTarget);
 
   treeState.onFolderSelected = () => saveChanges();
+  treeState.onBookmarkRescued = (newParentId) => {
+    currentParentId = newParentId;
+  };
 
   for (const root of tree[0].children || []) {
     const el = buildTreeNode(
@@ -171,7 +178,7 @@ async function init() {
   // Focus name input with all text selected
   titleInput.focus();
   titleInput.select();
-}
+};
 
 init().catch((err) => {
   console.error("Quick Add Bookmark init failed:", err);

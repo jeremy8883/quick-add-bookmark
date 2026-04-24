@@ -3,10 +3,10 @@
  * whether the current page is bookmarked (filled) or not (outline).
  */
 
-function drawBookmarkIcon(
+const drawBookmarkIcon = (
   size: number,
   filled: boolean,
-): ImageData {
+): ImageData => {
   const canvas = new OffscreenCanvas(size, size);
   const ctx = canvas.getContext("2d")!;
 
@@ -36,16 +36,14 @@ function drawBookmarkIcon(
   ctx.stroke();
 
   return ctx.getImageData(0, 0, size, size);
-}
+};
 
-function getIconData(filled: boolean) {
-  return {
-    16: drawBookmarkIcon(16, filled),
-    32: drawBookmarkIcon(32, filled),
-  };
-}
+const getIconData = (filled: boolean) => ({
+  16: drawBookmarkIcon(16, filled),
+  32: drawBookmarkIcon(32, filled),
+});
 
-async function updateIconForTab(tabId: number, url: string) {
+const updateIconForTab = async (tabId: number, url: string) => {
   // Skip non-bookmarkable URLs
   if (!url || url.startsWith("chrome://") || url.startsWith("chrome-extension://")) {
     await chrome.action.setIcon({ tabId, imageData: getIconData(false) });
@@ -55,14 +53,14 @@ async function updateIconForTab(tabId: number, url: string) {
   const results = await chrome.bookmarks.search({ url });
   const isBookmarked = results.length > 0;
   await chrome.action.setIcon({ tabId, imageData: getIconData(isBookmarked) });
-}
+};
 
-async function updateActiveTab() {
+const updateActiveTab = async () => {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (tab?.id && tab.url) {
     await updateIconForTab(tab.id, tab.url);
   }
-}
+};
 
 // Tab switched
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {

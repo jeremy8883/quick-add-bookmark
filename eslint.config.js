@@ -11,6 +11,8 @@ export default tseslint.config(
         "warn",
         { argsIgnorePattern: "^_" },
       ],
+      "prefer-arrow-callback": "error",
+      "func-style": ["error", "expression"],
     },
   },
   {

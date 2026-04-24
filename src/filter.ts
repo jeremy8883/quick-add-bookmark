@@ -1,4 +1,5 @@
-import { TreeState, isContextMenuOpen } from "./tree";
+import type { TreeState } from "./tree";
+import { isContextMenuOpen, requestDeleteFolder } from "./tree-actions";
 import { FOLDER_SVG } from "./constants";
 
 interface FolderEntry {
@@ -10,10 +11,10 @@ interface FolderEntry {
 /**
  * Flatten the bookmark tree into a list of all folders with their ancestor paths.
  */
-export function flattenFolders(
+export const flattenFolders = (
   nodes: chrome.bookmarks.BookmarkTreeNode[],
   path: string[] = [],
-): FolderEntry[] {
+): FolderEntry[] => {
   const result: FolderEntry[] = [];
   for (const node of nodes) {
     if (!node.children) continue;
@@ -22,7 +23,7 @@ export function flattenFolders(
     result.push(...flattenFolders(node.children, [...path, title]));
   }
   return result;
-}
+};
 
 /**
  * Set up type-to-filter on the tree container.
@@ -33,58 +34,45 @@ export interface TreeFilter {
   invalidateCache(): void;
 }
 
-export function setupTreeFilter(
+export const setupTreeFilter = (
   treeContainer: HTMLElement,
   filterInput: HTMLInputElement,
   state: TreeState,
-): TreeFilter {
+): TreeFilter => {
   let allFolders: FolderEntry[] = [];
   let originalContent: HTMLElement[] = [];
   let isFiltering = false;
 
   // Cache the full folder list on first use
-  async function ensureFolderList() {
+  const ensureFolderList = async () => {
     if (allFolders.length > 0) return;
     const tree = await chrome.bookmarks.getTree();
     // Skip the invisible root, start from its children
     for (const root of tree[0].children || []) {
       allFolders.push(...flattenFolders([root]));
     }
-  }
+  };
 
-  function saveOriginalContent() {
+  const saveOriginalContent = () => {
     if (originalContent.length > 0) return;
     originalContent = Array.from(treeContainer.children) as HTMLElement[];
-  }
+  };
 
-  function restoreOriginalContent() {
+  const restoreOriginalContent = () => {
     treeContainer.innerHTML = "";
     for (const el of originalContent) {
       treeContainer.appendChild(el);
     }
-  }
+  };
 
-  function highlightFilterItem(item: HTMLElement) {
+  const highlightFilterItem = (item: HTMLElement) => {
     const prev = treeContainer.querySelector(".highlighted");
     if (prev) prev.classList.remove("highlighted");
     item.classList.add("highlighted");
     item.scrollIntoView({ block: "nearest" });
-  }
+  };
 
-  function confirmFilterSelection() {
-    const highlighted = treeContainer.querySelector(
-      ".tree-item.highlighted",
-    ) as HTMLElement | null;
-    if (highlighted) {
-      state.selectedFolderId = highlighted.dataset.id!;
-      state.onFolderSelected?.(highlighted.dataset.id!);
-    }
-    exitFilterMode();
-    expandToSelected();
-    treeContainer.focus();
-  }
-
-  function expandToSelected() {
+  const expandToSelected = () => {
     if (!state.selectedFolderId) return;
     const item = treeContainer.querySelector(
       `.tree-item[data-id="${state.selectedFolderId}"]`,
@@ -104,9 +92,40 @@ export function setupTreeFilter(
       el = el.parentElement as HTMLElement | null;
     }
     item.scrollIntoView({ block: "nearest" });
-  }
+  };
 
-  function renderFilteredList(query: string) {
+  const exitFilterMode = () => {
+    if (!isFiltering) return;
+    isFiltering = false;
+    filterInput.value = "";
+    filterInput.parentElement!.style.display = "none";
+    restoreOriginalContent();
+
+    // Re-highlight the selected item in the restored tree
+    if (state.selectedFolderId) {
+      const prev = treeContainer.querySelector(".selected");
+      if (prev) prev.classList.remove("selected");
+      const sel = treeContainer.querySelector(
+        `.tree-item[data-id="${state.selectedFolderId}"]`,
+      );
+      if (sel) sel.classList.add("selected");
+    }
+  };
+
+  const confirmFilterSelection = () => {
+    const highlighted = treeContainer.querySelector(
+      ".tree-item.highlighted",
+    ) as HTMLElement | null;
+    if (highlighted) {
+      state.selectedFolderId = highlighted.dataset.id!;
+      state.onFolderSelected?.(highlighted.dataset.id!);
+    }
+    exitFilterMode();
+    expandToSelected();
+    treeContainer.focus();
+  };
+
+  const renderFilteredList = (query: string) => {
     const lowerQuery = query.toLowerCase();
     const matches = allFolders.filter(
       (f) =>
@@ -160,45 +179,27 @@ export function setupTreeFilter(
 
       treeContainer.appendChild(item);
     }
-  }
+  };
 
   const filterHint = document.getElementById("filter-hint");
 
   // Hide hint by default — only show when tree is focused
   if (filterHint) filterHint.style.display = "none";
 
-  function updateHintVisibility() {
+  const updateHintVisibility = () => {
     if (!filterHint) return;
     const treeHasFocus = treeContainer === document.activeElement;
     filterHint.style.display = treeHasFocus && !isFiltering ? "" : "none";
-  }
+  };
 
-  function enterFilterMode() {
+  const enterFilterMode = () => {
     if (!isFiltering) {
       saveOriginalContent();
       isFiltering = true;
       filterInput.parentElement!.style.display = "";
       updateHintVisibility();
     }
-  }
-
-  function exitFilterMode() {
-    if (!isFiltering) return;
-    isFiltering = false;
-    filterInput.value = "";
-    filterInput.parentElement!.style.display = "none";
-    restoreOriginalContent();
-
-    // Re-highlight the selected item in the restored tree
-    if (state.selectedFolderId) {
-      const prev = treeContainer.querySelector(".selected");
-      if (prev) prev.classList.remove("selected");
-      const sel = treeContainer.querySelector(
-        `.tree-item[data-id="${state.selectedFolderId}"]`,
-      );
-      if (sel) sel.classList.add("selected");
-    }
-  }
+  };
 
   // Typing while tree is focused enters filter mode
   treeContainer.setAttribute("tabindex", "2");
@@ -206,8 +207,8 @@ export function setupTreeFilter(
   treeContainer.addEventListener("focus", updateHintVisibility);
   treeContainer.addEventListener("blur", updateHintVisibility);
 
-  function getVisibleItems(): HTMLElement[] {
-    return Array.from(
+  const getVisibleItems = (): HTMLElement[] =>
+    Array.from(
       treeContainer.querySelectorAll(".tree-item"),
     ).filter((el) => {
       // Check all ancestors up to tree container are visible
@@ -223,9 +224,8 @@ export function setupTreeFilter(
       }
       return true;
     }) as HTMLElement[];
-  }
 
-  function selectItem(item: HTMLElement) {
+  const selectItem = (item: HTMLElement) => {
     const prev = treeContainer.querySelector(".selected");
     if (prev) {
       prev.classList.remove("selected");
@@ -236,7 +236,7 @@ export function setupTreeFilter(
     state.selectedFolderId = item.dataset.id!;
     state.onFolderSelected?.(item.dataset.id!);
     item.scrollIntoView({ block: "nearest" });
-  }
+  };
 
   treeContainer.addEventListener("keydown", async (e) => {
     // Don't intercept typing inside inputs (e.g. inline folder rename)
@@ -319,6 +319,21 @@ export function setupTreeFilter(
       return;
     }
 
+    // Enter submits the form (closes popup)
+    if (!isFiltering && e.key === "Enter") {
+      e.preventDefault();
+      const form = document.getElementById("bookmark-form") as HTMLFormElement | null;
+      if (form) form.requestSubmit();
+      return;
+    }
+
+    // Delete/Backspace deletes the selected folder
+    if (!isFiltering && (e.key === "Delete" || e.key === "Backspace")) {
+      e.preventDefault();
+      await requestDeleteFolder(treeContainer, state);
+      return;
+    }
+
     // Ignore modifier-only keys, navigation, etc.
     if (e.key === "Tab" || e.ctrlKey || e.altKey || e.metaKey) return;
 
@@ -393,4 +408,4 @@ export function setupTreeFilter(
       allFolders = [];
     },
   };
-}
+};
