@@ -139,11 +139,14 @@ export function setupTreeFilter(
     }
   }
 
+  const filterHint = document.getElementById("filter-hint");
+
   function enterFilterMode() {
     if (!isFiltering) {
       saveOriginalContent();
       isFiltering = true;
       filterInput.parentElement!.style.display = "";
+      if (filterHint) filterHint.style.display = "none";
     }
   }
 
@@ -152,6 +155,7 @@ export function setupTreeFilter(
     isFiltering = false;
     filterInput.value = "";
     filterInput.parentElement!.style.display = "none";
+    if (filterHint) filterHint.style.display = "";
     restoreOriginalContent();
 
     // Re-highlight the selected item in the restored tree

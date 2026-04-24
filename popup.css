@@ -43,6 +43,12 @@ body {
   box-shadow: 0 0 0 1px #1a73e8;
 }
 
+.filter-hint {
+  color: #9aa0a6;
+  font-weight: 400;
+  font-style: italic;
+}
+
 .filter-bar {
   margin-bottom: 4px;
 }
