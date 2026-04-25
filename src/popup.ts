@@ -71,7 +71,7 @@ const init = async () => {
   urlInput.value = pageUrl;
 
   // Show favicon
-  if (tab.favIconUrl) {
+  if (tab.favIconUrl && /^https?:\/\//.test(tab.favIconUrl)) {
     favicon.src = tab.favIconUrl;
     favicon.style.display = "";
   } else {

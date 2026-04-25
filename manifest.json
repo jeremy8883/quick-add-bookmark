@@ -3,7 +3,7 @@
   "name": "Quick Add Bookmark",
   "version": "1.0.0",
   "description": "Add bookmarks with full folder tree selection — no simplified dialog.",
-  "permissions": ["bookmarks", "activeTab", "storage", "tabs"],
+  "permissions": ["bookmarks", "activeTab", "storage"],
   "background": {
     "service_worker": "background.js"
   },
@@ -19,6 +19,10 @@
   },
   "commands": {
     "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+D",
+        "mac": "Alt+Shift+D"
+      },
       "description": "Add bookmark with folder selection"
     }
   },
