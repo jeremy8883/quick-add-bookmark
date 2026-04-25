@@ -3,7 +3,7 @@
   "name": "Quick Add Bookmark",
   "version": "1.0.0",
   "description": "Add bookmarks with full folder tree selection — no simplified dialog.",
-  "permissions": ["bookmarks", "activeTab", "storage"],
+  "permissions": ["bookmarks", "activeTab", "tabs", "storage"],
   "background": {
     "service_worker": "background.js"
   },
