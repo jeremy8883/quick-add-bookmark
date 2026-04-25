@@ -10,10 +10,10 @@
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
-      "16": "icons/bookmark-16.png",
-      "32": "icons/bookmark-32.png",
-      "48": "icons/bookmark-48.png",
-      "128": "icons/bookmark-128.png"
+      "16": "icons/bookmark-outline-16.png",
+      "32": "icons/bookmark-outline-32.png",
+      "48": "icons/bookmark-outline-48.png",
+      "128": "icons/bookmark-outline-128.png"
     },
     "default_title": "Add Bookmark"
   },

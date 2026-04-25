@@ -62,6 +62,9 @@ const updateActiveTab = async () => {
   }
 };
 
+// Set correct icon state for the active tab when service worker starts
+updateActiveTab();
+
 // Tab switched
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
   try {
