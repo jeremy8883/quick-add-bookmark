@@ -3,6 +3,8 @@
  * whether the current page is bookmarked (filled) or not (outline).
  */
 
+import { saveRemovedBookmark } from "./storage";
+
 const drawBookmarkIcon = (
   size: number,
   filled: boolean,
@@ -88,6 +90,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
 // Bookmark created or removed from any source
 chrome.bookmarks.onCreated.addListener(() => updateActiveTab());
-chrome.bookmarks.onRemoved.addListener(() => updateActiveTab());
+chrome.bookmarks.onRemoved.addListener(async (_id, removeInfo) => {
+  await updateActiveTab();
+  const node = removeInfo.node;
+  if (node.url) {
+    await saveRemovedBookmark(node.url, removeInfo.parentId);
+  }
+});
 chrome.bookmarks.onChanged.addListener(() => updateActiveTab());
 chrome.bookmarks.onMoved.addListener(() => updateActiveTab());

@@ -11,7 +11,12 @@ import {
   updateBookmark,
   removeBookmark,
 } from "./bookmarks";
-import { getLastFolderId, setLastFolderId } from "./storage";
+import {
+  getLastFolderId,
+  setLastFolderId,
+  getRemovedBookmarks,
+  clearRemovedBookmark,
+} from "./storage";
 import { setupTreeFilter } from "./filter";
 import { DEFAULT_FOLDER_ID } from "./constants";
 
@@ -87,8 +92,16 @@ const init = async () => {
     urlInput.value = existing.url!;
     heading.textContent = "Edit bookmark";
   } else {
-    const lastFolderId = await getLastFolderId();
-    let parentId = lastFolderId || DEFAULT_FOLDER_ID;
+    // Check if this URL was recently removed — restore to its original folder
+    const removedMap = await getRemovedBookmarks();
+    const removedParentId = pageUrl ? removedMap[pageUrl] : undefined;
+
+    let parentId: string;
+    if (removedParentId) {
+      parentId = removedParentId;
+    } else {
+      parentId = (await getLastFolderId()) || DEFAULT_FOLDER_ID;
+    }
 
     // Verify the parent folder still exists (it may have been deleted)
     try {
@@ -101,6 +114,11 @@ const init = async () => {
     bookmarkId = created.id;
     currentParentId = parentId;
     heading.textContent = "Bookmark added";
+
+    // Clean up the removal record now that it's been re-added
+    if (removedParentId) {
+      await clearRemovedBookmark(pageUrl);
+    }
   }
 
   treeState.editingBookmarkId = bookmarkId;
