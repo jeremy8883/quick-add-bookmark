@@ -41,6 +41,28 @@ export const findPathToTarget = (
   return false;
 };
 
+/**
+ * After expanding a folder, scroll to reveal children without losing
+ * sight of the parent.  Strategy: scroll the last child into view first
+ * (pulls the viewport down), then scroll the parent back into view
+ * (pulls up just enough so the parent stays visible).  When the children
+ * fit on screen both calls are effectively no-ops thanks to "nearest".
+ */
+export const scrollExpandedIntoView = (
+  parentItem: HTMLElement,
+  childContainer: HTMLElement,
+): void => {
+  requestAnimationFrame(() => {
+    const lastChild = childContainer.querySelector(
+      ":scope > :last-child > .tree-item",
+    ) as HTMLElement | null;
+    if (lastChild) {
+      lastChild.scrollIntoView({ block: "nearest" });
+    }
+    parentItem.scrollIntoView({ block: "nearest" });
+  });
+};
+
 const toggleExpand = (
   childContainer: HTMLElement,
   toggle: HTMLElement,
@@ -144,7 +166,8 @@ export const buildTreeNode = (
   toggle.addEventListener("click", (e) => {
     e.stopPropagation();
     if (hasSubfolders) {
-      toggleExpand(childContainer, toggle, item);
+      const opened = toggleExpand(childContainer, toggle, item);
+      if (opened) scrollExpandedIntoView(item, childContainer);
     }
   });
 
@@ -166,7 +189,8 @@ export const buildTreeNode = (
   item.addEventListener("dblclick", (e) => {
     e.stopPropagation();
     if (hasSubfolders) {
-      toggleExpand(childContainer, toggle, item);
+      const opened = toggleExpand(childContainer, toggle, item);
+      if (opened) scrollExpandedIntoView(item, childContainer);
     }
   });
 

@@ -1,4 +1,5 @@
 import type { TreeState } from "./tree";
+import { scrollExpandedIntoView } from "./tree";
 import { isContextMenuOpen, requestDeleteFolder } from "./tree-actions";
 import { FOLDER_SVG } from "./constants";
 
@@ -315,6 +316,7 @@ export const setupTreeFilter = (
         children.classList.add("open");
         toggle.classList.add("expanded");
         selected.setAttribute("aria-expanded", "true");
+        scrollExpandedIntoView(selected, children);
       }
       return;
     }
