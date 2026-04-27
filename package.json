@@ -5,10 +5,8 @@
   "description": "Chrome extension: add bookmarks with full folder tree selection.",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf dist",
-    "copy": "cp manifest.json popup.html popup.css dist/ && cp -r icons dist/",
-    "build": "npm run clean && mkdir -p dist && tsc --noEmit && esbuild src/popup.ts --bundle --outfile=dist/popup.js --format=iife --target=chrome115 && esbuild src/background.ts --bundle --outfile=dist/background.js --format=iife --target=chrome115 && npm run copy",
-    "watch": "mkdir -p dist && npm run copy && esbuild src/popup.ts --bundle --outfile=dist/popup.js --format=iife --target=chrome115 --watch &  esbuild src/background.ts --bundle --outfile=dist/background.js --format=iife --target=chrome115 --watch",
+    "build": "node build.js",
+    "watch": "node watch.js",
     "lint": "eslint src/",
     "format": "prettier --write 'src/**/*.ts'",
     "format:check": "prettier --check 'src/**/*.ts'",
