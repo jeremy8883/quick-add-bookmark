@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Quick Add Bookmark",
-  "version": "1.0.0",
-  "description": "Add bookmarks with full folder tree selection — no simplified dialog.",
+  "version": "0.1.0",
+  "description": "Add bookmarks with folder search and tree selection. No \"simplified\" dialog.",
   "permissions": ["bookmarks", "activeTab", "tabs", "storage"],
   "background": {
     "service_worker": "background.js"
