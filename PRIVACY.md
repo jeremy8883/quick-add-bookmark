@@ -1,6 +1,6 @@
 # Privacy Policy — Quick Add Bookmark
 
-**Last updated:** April 24, 2026
+**Last updated:** April 28, 2026
 
 ## Summary
 
@@ -12,6 +12,7 @@ This extension accesses the following browser data solely to provide its core fu
 
 - **Bookmarks**: Read and modified to let you add, edit, and organize bookmarks.
 - **Active Tab**: The title, URL, and favicon of the current tab are read to pre-fill the bookmark form.
+- **Tabs**: Tab switch and page load events are observed to update the extension icon.
 - **Local Storage**: Your last-used folder selection is saved locally in the browser so it can be restored next time.
 
 ## Data Storage
@@ -24,6 +25,7 @@ All data remains in your browser using Chrome's built-in `chrome.bookmarks` and 
 |---|---|
 | `bookmarks` | Create, edit, move, and delete bookmarks |
 | `activeTab` | Read the current tab's title, URL, and favicon |
+| `tabs` | Detect tab switches and page loads to update the extension icon |
 | `storage` | Remember your last-used folder selection |
 
 ## Third-Party Services
