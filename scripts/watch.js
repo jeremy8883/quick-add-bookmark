@@ -4,7 +4,8 @@ import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const bin = (cmd) => resolve(__dirname, "node_modules", ".bin", cmd);
+const root = resolve(__dirname, "..");
+const bin = (cmd) => resolve(root, "node_modules", ".bin", cmd);
 
 // Ensure dist exists and copy static assets
 mkdirSync("dist", { recursive: true });
