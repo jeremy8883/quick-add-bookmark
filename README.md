@@ -29,22 +29,7 @@ To remap the shortcut (e.g. override Chrome's `Ctrl+D`), go to `chrome://extensi
 ```bash
 npm run watch     # rebuild on file changes
 npm run build     # typecheck + bundle + copy assets to dist/
-npm run lint      # eslint
-npm run format    # prettier
-npm test          # vitest
+npm test          # run tests
 ```
 
-## Project Structure
-
-```
-src/
-  popup.ts       — entry point, init, auto-save wiring
-  tree.ts        — folder tree rendering, expand/collapse, new folder
-  filter.ts      — type-to-filter with flattened breadcrumb view
-  bookmarks.ts   — Chrome bookmarks API wrapper (CRUD)
-  storage.ts     — last-used folder persistence
-  constants.ts   — shared constants
-popup.html       — popup markup
-popup.css        — styles
-manifest.json    — MV3 extension config
-```
+Run `npm run` for all commands.
