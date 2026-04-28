@@ -1,28 +1,33 @@
 # Quick Add Bookmark
 
-Chrome extension that replaces the default bookmark dialog with a full folder tree view. Bookmark is saved immediately on open — just pick a folder, tweak the name/URL if needed, and close.
+Chrome extension that replaces the default bookmark dialog with a full folder tree view. Bookmark is saved immediately on open. Simply pick a folder, tweak the name/URL if needed, and close.
 
-## Features
+<img src="./docs/screenshot-1.png" width="300" />
 
-- Full bookmark folder tree with expand/collapse
-- Auto-saves all changes (title, URL, folder) immediately
-- Remembers last-used folder
-- Type-to-filter: start typing while the tree is focused to search folders
-- Inline new folder creation
-- Remove bookmark button
-- Keyboard shortcut: `Ctrl+Shift+D` (Windows/Linux) / `Cmd+Shift+D` (Mac)
+It behaves like the default Chrome bookmarks popup, but without the initial dropdown, and the hidden "advanced mode".
+
+To search through folders, simply start typing.
+
+> Note: AI has been used to generate this extension. With that said, it's also an extension that I use personally, and I will be on-top of any bugs and UI improvements.
 
 ## Install
 
-1. Clone the repo and install dependencies:
-   ```bash
-   npm install
-   npm run build
-   ```
-2. Open `chrome://extensions` and enable **Developer mode**
-3. Click **Load unpacked** and select the `dist/` directory
+This extension will become available via Chrome Extension store once it's approved. But for now, you'll need to install it yourself.
 
-To remap the shortcut (e.g. override Chrome's `Ctrl+D`), go to `chrome://extensions/shortcuts`.
+1. Download the [latest .zip release](https://github.com/jeremy8883/quick-add-bookmark/releases), then extract to a location of choice.
+1. Open `chrome://extensions` and enable **Developer mode**
+1. Click **Load unpacked** and select the extracted extension
+
+If you'd like to override the default "Add bookmark" shortcut, go to `chrome://extensions/shortcuts` and map "Quick Add Bookmark" to Ctrl + D.
+
+## Build from source
+
+Clone the repo and install dependencies:
+
+```bash
+npm install
+npm run build
+```
 
 ## Development
 
