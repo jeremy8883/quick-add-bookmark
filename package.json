@@ -12,7 +12,8 @@
     "format:check": "prettier --check 'src/**/*.ts'",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "package": "cd dist && zip -r ../quick-add-bookmark.zip . && cd .."
   },
   "repository": {
     "type": "git",
