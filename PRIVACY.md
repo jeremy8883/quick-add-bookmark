@@ -26,7 +26,7 @@ All data remains in your browser using Chrome's built-in `chrome.bookmarks` and 
 | `bookmarks` | Create, edit, move, and delete bookmarks |
 | `activeTab` | Read the current tab's title, URL, and favicon |
 | `tabs` | Detect tab switches and page loads to update the extension icon |
-| `storage` | Remember your last-used folder selection |
+| `storage` | Remember your last-used folder selection, and remember recently removed bookmarks |
 
 ## Third-Party Services
 
