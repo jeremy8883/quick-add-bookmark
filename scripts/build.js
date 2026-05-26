@@ -7,25 +7,35 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 const bin = (cmd) => resolve(root, "node_modules", ".bin", cmd);
 
-// Clean
+const EXTENSIONS = [
+  {
+    name: "quick-add-bookmark",
+    entries: [
+      { src: "src/popup.ts", out: "popup.js" },
+      { src: "src/background.ts", out: "background.js" },
+    ],
+    staticAssets: ["manifest.json", "popup.html", "popup.css", "icons"],
+  },
+];
+
 rmSync("dist", { recursive: true, force: true });
 mkdirSync("dist", { recursive: true });
 
-// Type check
 execSync(`"${bin("tsc")}" --noEmit`, { stdio: "inherit", shell: true });
 
-// Bundle
-execSync(
-  `"${bin("esbuild")}" src/popup.ts --bundle --outfile=dist/popup.js --format=iife --target=chrome115`,
-  { stdio: "inherit", shell: true },
-);
-execSync(
-  `"${bin("esbuild")}" src/background.ts --bundle --outfile=dist/background.js --format=iife --target=chrome115`,
-  { stdio: "inherit", shell: true },
-);
+for (const ext of EXTENSIONS) {
+  const extDir = `extensions/${ext.name}`;
+  const outDir = `dist/${ext.name}`;
+  mkdirSync(outDir, { recursive: true });
 
-// Copy static assets
-cpSync("manifest.json", "dist/manifest.json");
-cpSync("popup.html", "dist/popup.html");
-cpSync("popup.css", "dist/popup.css");
-cpSync("icons", "dist/icons", { recursive: true });
+  for (const { src, out } of ext.entries) {
+    execSync(
+      `"${bin("esbuild")}" ${extDir}/${src} --bundle --outfile=${outDir}/${out} --format=iife --target=chrome115`,
+      { stdio: "inherit", shell: true },
+    );
+  }
+
+  for (const asset of ext.staticAssets) {
+    cpSync(`${extDir}/${asset}`, `${outDir}/${asset}`, { recursive: true });
+  }
+}

@@ -1,5 +1,7 @@
 import { readFileSync, writeFileSync } from "fs";
 
+const EXTENSIONS = ["quick-add-bookmark"];
+
 const bump = process.argv[2];
 
 if (!["major", "minor", "patch"].includes(bump)) {
@@ -23,7 +25,11 @@ if (bump === "major") {
 
 const version = parts.join(".");
 
-for (const file of ["package.json", "manifest.json"]) {
+const files = [
+  "package.json",
+  ...EXTENSIONS.map((e) => `extensions/${e}/manifest.json`),
+];
+for (const file of files) {
   const json = JSON.parse(readFileSync(file, "utf-8"));
   json.version = version;
   writeFileSync(file, JSON.stringify(json, null, 2) + "\n");

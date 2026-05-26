@@ -2,9 +2,9 @@ import {
   findPathToTarget,
   buildTreeNode,
   TreeState,
-} from "./tree";
-import { createNewFolder } from "./tree-actions";
-import { updateCountsOnMove } from "./tree-counts";
+} from "../../../shared/tree";
+import { createNewFolder } from "../../../shared/tree-actions";
+import { updateCountsOnMove } from "../../../shared/tree-counts";
 import {
   findExistingBookmark,
   createBookmark,
@@ -18,7 +18,7 @@ import {
   clearRemovedBookmark,
 } from "./storage";
 import { setupTreeFilter } from "./filter";
-import { DEFAULT_FOLDER_ID } from "./constants";
+import { DEFAULT_FOLDER_ID } from "../../../shared/constants";
 
 const form = document.getElementById("bookmark-form") as HTMLFormElement;
 const titleInput = document.getElementById("title") as HTMLInputElement;

@@ -11,5 +11,5 @@
     "isolatedModules": true,
     "types": ["chrome"]
   },
-  "include": ["src"]
+  "include": ["shared", "extensions"]
 }

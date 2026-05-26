@@ -1,4 +1,4 @@
-import { DEFAULT_FOLDER_ID } from "./constants";
+import { DEFAULT_FOLDER_ID } from "../../../shared/constants";
 
 export const findExistingBookmark = async (
   url: string,

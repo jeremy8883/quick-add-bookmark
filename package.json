@@ -7,13 +7,13 @@
   "scripts": {
     "build": "node scripts/build.js",
     "watch": "node scripts/watch.js",
-    "lint": "eslint src/",
-    "format": "prettier --write 'src/**/*.ts'",
-    "format:check": "prettier --check 'src/**/*.ts'",
+    "lint": "eslint shared/ extensions/",
+    "format": "prettier --write 'shared/**/*.ts' 'extensions/**/*.ts'",
+    "format:check": "prettier --check 'shared/**/*.ts' 'extensions/**/*.ts'",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "package": "cd dist && zip -r ../quick-add-bookmark.zip . && cd ..",
+    "package": "cd dist/quick-add-bookmark && zip -r ../../quick-add-bookmark.zip . && cd ../..",
     "release": "npm run build && npm run package && gh release create v$(node -p \"require('./package.json').version\") quick-add-bookmark.zip --title \"v$(node -p \"require('./package.json').version\")\" --generate-notes",
     "version": "node scripts/version.js"
   },

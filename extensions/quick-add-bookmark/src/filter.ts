@@ -1,7 +1,7 @@
-import type { TreeState } from "./tree";
-import { scrollExpandedIntoView } from "./tree";
-import { isContextMenuOpen, requestDeleteFolder } from "./tree-actions";
-import { FOLDER_SVG } from "./constants";
+import type { TreeState } from "../../../shared/tree";
+import { scrollExpandedIntoView } from "../../../shared/tree";
+import { isContextMenuOpen, requestDeleteFolder } from "../../../shared/tree-actions";
+import { FOLDER_SVG } from "../../../shared/constants";
 
 interface FolderEntry {
   id: string;

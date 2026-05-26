@@ -1,4 +1,4 @@
-import { mkdirSync, cpSync, watch } from "fs";
+import { mkdirSync, cpSync, watch as fsWatch } from "fs";
 import { spawn } from "child_process";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -7,28 +7,47 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 const bin = (cmd) => resolve(root, "node_modules", ".bin", cmd);
 
-// Ensure dist exists and copy static assets
-mkdirSync("dist", { recursive: true });
-cpSync("manifest.json", "dist/manifest.json");
-cpSync("popup.html", "dist/popup.html");
-cpSync("popup.css", "dist/popup.css");
-cpSync("icons", "dist/icons", { recursive: true });
-
-// Run both esbuild watchers
-const esbuild = bin("esbuild");
-const args = (entry, out) => [
-  `src/${entry}`,
-  "--bundle",
-  `--outfile=dist/${out}`,
-  "--format=iife",
-  "--target=chrome115",
-  "--watch",
+const EXTENSIONS = [
+  {
+    name: "quick-add-bookmark",
+    entries: [
+      { src: "src/popup.ts", out: "popup.js" },
+      { src: "src/background.ts", out: "background.js" },
+    ],
+    staticAssets: ["manifest.json", "popup.html", "popup.css", "icons"],
+  },
 ];
 
-spawn(esbuild, args("popup.ts", "popup.js"), { stdio: "inherit" });
-spawn(esbuild, args("background.ts", "background.js"), { stdio: "inherit" });
+const esbuild = bin("esbuild");
 
-// Re-copy static assets on change
-for (const file of ["manifest.json", "popup.html", "popup.css"]) {
-  watch(file, () => cpSync(file, `dist/${file}`));
+for (const ext of EXTENSIONS) {
+  const extDir = `extensions/${ext.name}`;
+  const outDir = `dist/${ext.name}`;
+  mkdirSync(outDir, { recursive: true });
+
+  for (const asset of ext.staticAssets) {
+    cpSync(`${extDir}/${asset}`, `${outDir}/${asset}`, { recursive: true });
+  }
+
+  for (const { src, out } of ext.entries) {
+    spawn(
+      esbuild,
+      [
+        `${extDir}/${src}`,
+        "--bundle",
+        `--outfile=${outDir}/${out}`,
+        "--format=iife",
+        "--target=chrome115",
+        "--watch",
+      ],
+      { stdio: "inherit" },
+    );
+  }
+
+  for (const asset of ext.staticAssets) {
+    if (asset === "icons") continue;
+    fsWatch(`${extDir}/${asset}`, () =>
+      cpSync(`${extDir}/${asset}`, `${outDir}/${asset}`),
+    );
+  }
 }
