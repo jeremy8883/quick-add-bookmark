@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
 
-const EXTENSIONS = ["quick-add-bookmark"];
+const EXTENSIONS = ["quick-add-bookmark", "quick-go-to-bookmark"];
 
 const bump = process.argv[2];
 

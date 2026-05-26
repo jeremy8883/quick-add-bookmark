@@ -16,6 +16,14 @@ const EXTENSIONS = [
     ],
     staticAssets: ["manifest.json", "popup.html", "popup.css", "icons"],
   },
+  {
+    name: "quick-go-to-bookmark",
+    entries: [
+      { src: "src/go-to.ts", out: "go-to.js" },
+      { src: "src/background.ts", out: "background.js" },
+    ],
+    staticAssets: ["manifest.json", "go-to.html", "go-to.css", "icons"],
+  },
 ];
 
 rmSync("dist", { recursive: true, force: true });

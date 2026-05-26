@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Folder body -->
+  <path d="M8 38 C8 34 11 32 14 32 L42 32 C44 32 46 33 47 35 L52 42 L114 42 C118 42 120 44 120 48 L120 108 C120 112 117 114 114 114 L14 114 C10 114 8 112 8 108 Z" fill="#9aa0a6" stroke="#5f6368" stroke-width="3"/>
+  <!-- Bookmark sticking up out of the folder, centered -->
+  <path d="M44 16 C44 10 48 6 54 6 L74 6 C80 6 84 10 84 16 L84 62 L64 48 L44 62 Z" fill="#4285F4" stroke="#1a56c4" stroke-width="3"/>
+</svg>
