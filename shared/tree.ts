@@ -3,7 +3,7 @@
  * expand/collapse toggling.
  */
 
-import { FOLDER_SVG } from "./constants";
+import { FOLDER_SVG, BOOKMARK_LEAF_SVG } from "./constants";
 import { showContextMenu } from "./tree-actions";
 import { countBookmarksDeep } from "./tree-counts";
 
@@ -15,6 +15,15 @@ export interface TreeState {
   editingBookmarkId?: string | null;
   /** Called when deleteFolder moves the edited bookmark to a safe parent */
   onBookmarkRescued?: ((newParentId: string) => void) | null;
+  /** Called when a bookmark leaf is activated (click or Enter) */
+  onBookmarkSelected?:
+    | ((node: chrome.bookmarks.BookmarkTreeNode, event: MouseEvent) => void)
+    | null;
+}
+
+export interface BuildTreeOptions {
+  /** When true, leaf bookmarks render as tree items (default: false, folders only). */
+  renderBookmarks?: boolean;
 }
 
 /**
@@ -76,7 +85,7 @@ const toggleExpand = (
 
 /**
  * Recursively build a DOM subtree for a bookmark folder node.
- * Returns null for non-folder nodes (leaf bookmarks).
+ * Returns null for leaf bookmarks unless options.renderBookmarks is true.
  */
 export const buildTreeNode = (
   node: chrome.bookmarks.BookmarkTreeNode,
@@ -85,8 +94,12 @@ export const buildTreeNode = (
   targetId: string,
   treeContainer: HTMLElement,
   state: TreeState,
+  options: BuildTreeOptions = {},
 ): HTMLElement | null => {
-  if (!node.children) return null;
+  if (!node.children) {
+    if (!options.renderBookmarks || !node.url) return null;
+    return buildBookmarkLeaf(node, depth, state);
+  }
 
   const wrapper = document.createElement("div");
   wrapper.setAttribute("role", "none");
@@ -149,6 +162,7 @@ export const buildTreeNode = (
       targetId,
       treeContainer,
       state,
+      options,
     );
     if (childEl) childContainer.appendChild(childEl);
   }
@@ -201,4 +215,75 @@ export const buildTreeNode = (
   });
 
   return wrapper;
+};
+
+const buildBookmarkLeaf = (
+  node: chrome.bookmarks.BookmarkTreeNode,
+  depth: number,
+  state: TreeState,
+): HTMLElement => {
+  const wrapper = document.createElement("div");
+  wrapper.setAttribute("role", "none");
+
+  const item = document.createElement("div");
+  item.className = "tree-item tree-bookmark";
+  item.setAttribute("role", "treeitem");
+  item.style.paddingLeft = 8 + depth * 16 + "px";
+  item.dataset.id = node.id;
+  if (node.url) item.dataset.url = node.url;
+
+  // Empty toggle spacer for alignment with sibling folders
+  const toggle = document.createElement("span");
+  toggle.className = "tree-toggle empty";
+  item.appendChild(toggle);
+
+  const iconSpan = document.createElement("span");
+  iconSpan.innerHTML = BOOKMARK_LEAF_SVG;
+  item.appendChild(iconSpan.firstElementChild!);
+
+  const label = document.createElement("span");
+  label.className = "tree-label";
+  label.textContent = node.title || node.url || "";
+  item.appendChild(label);
+
+  wrapper.appendChild(item);
+
+  item.addEventListener("click", (e) => {
+    e.stopPropagation();
+    state.onBookmarkSelected?.(node, e);
+  });
+
+  return wrapper;
+};
+
+/**
+ * Flatten the bookmark tree into a list of all leaf bookmarks with
+ * their ancestor folder titles (for breadcrumbing).
+ */
+export interface BookmarkEntry {
+  id: string;
+  title: string;
+  url: string;
+  path: string[];
+}
+
+export const flattenBookmarks = (
+  nodes: chrome.bookmarks.BookmarkTreeNode[],
+  path: string[] = [],
+): BookmarkEntry[] => {
+  const result: BookmarkEntry[] = [];
+  for (const node of nodes) {
+    if (node.children) {
+      const title = node.title || "Bookmarks";
+      result.push(...flattenBookmarks(node.children, [...path, title]));
+    } else if (node.url) {
+      result.push({
+        id: node.id,
+        title: node.title || node.url,
+        url: node.url,
+        path,
+      });
+    }
+  }
+  return result;
 };

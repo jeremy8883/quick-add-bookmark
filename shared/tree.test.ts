@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { findPathToTarget } from "./tree";
+import { findPathToTarget, flattenBookmarks } from "./tree";
 import { countBookmarksDeep, isBookmarkInsideFolder } from "./tree-counts";
 
 type Node = {
@@ -144,5 +144,63 @@ describe("isBookmarkInsideFolder", () => {
   it("returns false for an empty folder", () => {
     const empty = { id: "101", title: "Backend", children: [] };
     expect(isBookmarkInsideFolder(empty as any, "b1")).toBe(false);
+  });
+});
+
+describe("flattenBookmarks", () => {
+  it("returns every leaf bookmark with breadcrumb path", () => {
+    const result = flattenBookmarks(tree.children as any);
+    expect(result).toEqual([
+      {
+        id: "b1",
+        title: "React Docs",
+        url: "https://react.dev",
+        path: ["Bookmarks Bar", "Dev", "Frontend"],
+      },
+      {
+        id: "b2",
+        title: "Vue Docs",
+        url: "https://vuejs.org",
+        path: ["Bookmarks Bar", "Dev", "Frontend"],
+      },
+      {
+        id: "b3",
+        title: "Example",
+        url: "https://example.com",
+        path: ["Bookmarks Bar"],
+      },
+      {
+        id: "b4",
+        title: "Misc Link",
+        url: "https://misc.com",
+        path: ["Other Bookmarks", "Misc"],
+      },
+    ]);
+  });
+
+  it("skips folders, includes only leaves", () => {
+    const result = flattenBookmarks(tree.children as any);
+    const ids = result.map((b) => b.id);
+    expect(ids).not.toContain("1");
+    expect(ids).not.toContain("10");
+    expect(ids).not.toContain("100");
+  });
+
+  it("returns empty array for empty input", () => {
+    expect(flattenBookmarks([])).toEqual([]);
+  });
+
+  it("returns empty array for a tree with no leaves", () => {
+    const onlyFolders: any[] = [
+      { id: "1", title: "A", children: [{ id: "2", title: "B", children: [] }] },
+    ];
+    expect(flattenBookmarks(onlyFolders)).toEqual([]);
+  });
+
+  it("uses url as title fallback when title is empty", () => {
+    const nodes: any[] = [
+      { id: "1", title: "Root", children: [{ id: "b1", title: "", url: "https://no-title.com" }] },
+    ];
+    expect(flattenBookmarks(nodes)[0].title).toBe("https://no-title.com");
   });
 });
