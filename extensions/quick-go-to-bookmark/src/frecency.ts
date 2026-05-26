@@ -69,9 +69,20 @@ export const recordVisit = async (bookmarkId: string): Promise<void> => {
 export const removeFrecencyEntry = async (
   bookmarkId: string,
 ): Promise<void> => {
+  await removeFrecencyEntries([bookmarkId]);
+};
+
+export const removeFrecencyEntries = async (
+  bookmarkIds: string[],
+): Promise<void> => {
+  if (bookmarkIds.length === 0) return;
   const map = await getFrecencyMap();
-  if (bookmarkId in map) {
-    delete map[bookmarkId];
-    await saveFrecencyMap(map);
+  let changed = false;
+  for (const id of bookmarkIds) {
+    if (id in map) {
+      delete map[id];
+      changed = true;
+    }
   }
+  if (changed) await saveFrecencyMap(map);
 };

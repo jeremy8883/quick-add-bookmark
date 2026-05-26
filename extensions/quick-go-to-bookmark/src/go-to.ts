@@ -5,11 +5,12 @@ import {
   type BookmarkEntry,
 } from "../../../shared/tree";
 import { filterBookmarks, renderFilterResults } from "./filter";
-import { getFrecencyMap, sortByFrecency } from "./frecency";
+import { getFrecencyMap, recordVisit, sortByFrecency } from "./frecency";
 
 type Mode = "tree" | "filter";
 
-const openBookmark = (url: string, newTab: boolean) => {
+const openBookmark = async (id: string, url: string, newTab: boolean) => {
+  await recordVisit(id);
   if (newTab) {
     chrome.tabs.create({ url });
   } else {
@@ -62,7 +63,7 @@ const init = async () => {
       onBookmarkSelected: (node, event) => {
         if (!node.url) return;
         const newTab = event.button === 1 || event.ctrlKey || event.metaKey;
-        openBookmark(node.url, newTab);
+        openBookmark(node.id, node.url, newTab);
       },
     };
 
@@ -190,9 +191,10 @@ const init = async () => {
       ) as HTMLElement | null;
       if (!highlighted) return;
       const url = highlighted.dataset.url;
+      const id = highlighted.dataset.id;
       const newTab = e.ctrlKey || e.metaKey;
-      if (url) {
-        openBookmark(url, newTab);
+      if (url && id) {
+        openBookmark(id, url, newTab);
       } else if (mode === "tree") {
         // Toggle folder expand
         highlighted.click();
@@ -236,9 +238,10 @@ const init = async () => {
     ) as HTMLElement | null;
     if (!target) return;
     const url = target.dataset.url;
-    if (url) {
+    const id = target.dataset.id;
+    if (url && id) {
       const newTab = e.ctrlKey || e.metaKey;
-      openBookmark(url, newTab);
+      openBookmark(id, url, newTab);
     }
   });
 
@@ -250,9 +253,10 @@ const init = async () => {
     ) as HTMLElement | null;
     if (!target) return;
     const url = target.dataset.url;
-    if (url) {
+    const id = target.dataset.id;
+    if (url && id) {
       e.preventDefault();
-      openBookmark(url, true);
+      openBookmark(id, url, true);
     }
   });
 
