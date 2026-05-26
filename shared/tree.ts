@@ -24,6 +24,14 @@ export interface TreeState {
 export interface BuildTreeOptions {
   /** When true, leaf bookmarks render as tree items (default: false, folders only). */
   renderBookmarks?: boolean;
+  /**
+   * When true, clicking a folder row toggles its expand state instead of
+   * selecting it. Use for navigate-style trees where folder selection
+   * has no meaning (e.g. the go-to popup).
+   */
+  clickFolderTogglesExpand?: boolean;
+  /** When true, right-click does not show the folder context menu. */
+  disableContextMenu?: boolean;
 }
 
 /**
@@ -110,11 +118,13 @@ export const buildTreeNode = (
   item.style.paddingLeft = 8 + depth * 16 + "px";
   item.dataset.id = node.id;
 
-  const hasSubfolders = node.children.some((c) => c.children);
+  const isExpandable = options.renderBookmarks
+    ? node.children.length > 0
+    : node.children.some((c) => c.children);
 
   // Toggle arrow — clickable expand/collapse control
   const toggle = document.createElement("span");
-  toggle.className = "tree-toggle" + (hasSubfolders ? "" : " empty");
+  toggle.className = "tree-toggle" + (isExpandable ? "" : " empty");
   item.appendChild(toggle);
 
   // Folder icon
@@ -150,7 +160,7 @@ export const buildTreeNode = (
   }
 
   // ARIA expanded state
-  if (hasSubfolders) {
+  if (isExpandable) {
     item.setAttribute("aria-expanded", pathToTarget.has(node.id) ? "true" : "false");
   }
 
@@ -179,15 +189,22 @@ export const buildTreeNode = (
   // Click the toggle icon to expand/collapse
   toggle.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (hasSubfolders) {
+    if (isExpandable) {
       const opened = toggleExpand(childContainer, toggle, item);
       if (opened) scrollExpandedIntoView(item, childContainer);
     }
   });
 
-  // Single click on row: select folder
+  // Single click on row: select folder (or toggle expand in navigate mode)
   item.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (options.clickFolderTogglesExpand) {
+      if (isExpandable) {
+        const opened = toggleExpand(childContainer, toggle, item);
+        if (opened) scrollExpandedIntoView(item, childContainer);
+      }
+      return;
+    }
     const prev = treeContainer.querySelector(".selected");
     if (prev) {
       prev.classList.remove("selected");
@@ -202,17 +219,19 @@ export const buildTreeNode = (
   // Double click on row: expand/collapse
   item.addEventListener("dblclick", (e) => {
     e.stopPropagation();
-    if (hasSubfolders) {
+    if (isExpandable) {
       const opened = toggleExpand(childContainer, toggle, item);
       if (opened) scrollExpandedIntoView(item, childContainer);
     }
   });
 
   // Right-click context menu
-  item.addEventListener("contextmenu", (e) => {
-    e.stopPropagation();
-    showContextMenu(e, node.id, treeContainer, state);
-  });
+  if (!options.disableContextMenu) {
+    item.addEventListener("contextmenu", (e) => {
+      e.stopPropagation();
+      showContextMenu(e, node.id, treeContainer, state);
+    });
+  }
 
   return wrapper;
 };

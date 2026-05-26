@@ -40,5 +40,96 @@ body {
 .results {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 4px 0;
+  outline: none;
+}
+
+.tree-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.tree-item:hover,
+.tree-item.highlighted {
+  background: #f1f3f4;
+}
+
+.tree-toggle {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #5f6368;
+  margin-right: 2px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.tree-toggle:hover {
+  background: #dadce0;
+}
+
+.tree-toggle::after {
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 5px solid #5f6368;
+  transition: transform 0.15s;
+}
+
+.tree-toggle.expanded::after {
+  transform: rotate(90deg);
+}
+
+.tree-toggle.empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.tree-toggle.empty::after {
+  display: none;
+}
+
+.tree-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 6px;
+  flex-shrink: 0;
+  color: #5f6368;
+}
+
+.tree-bookmark .tree-icon {
+  color: #4285F4;
+}
+
+.tree-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.tree-count {
+  flex-shrink: 0;
+  margin-left: 8px;
+  font-size: 11px;
+  color: #9aa0a6;
+}
+
+.tree-children {
+  display: none;
+}
+
+.tree-children.open {
+  display: block;
 }
