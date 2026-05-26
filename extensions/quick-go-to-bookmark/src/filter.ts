@@ -53,17 +53,27 @@ export const renderFilterResults = (
     const label = document.createElement("span");
     label.className = "tree-label";
 
+    const titleRow = document.createElement("span");
+    titleRow.className = "tree-title-row";
+
     const title = document.createElement("span");
     title.className = "tree-title";
     title.textContent = entry.title;
-    label.appendChild(title);
+    titleRow.appendChild(title);
 
     if (entry.path.length > 0) {
       const bc = document.createElement("span");
       bc.className = "tree-breadcrumb";
       bc.textContent = entry.path.join(" / ");
-      label.appendChild(bc);
+      titleRow.appendChild(bc);
     }
+
+    label.appendChild(titleRow);
+
+    const url = document.createElement("span");
+    url.className = "tree-url";
+    url.textContent = entry.url;
+    label.appendChild(url);
 
     item.appendChild(label);
     container.appendChild(item);

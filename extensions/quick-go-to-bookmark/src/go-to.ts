@@ -88,7 +88,14 @@ const init = async () => {
     }
 
     const first = results.querySelector(".tree-item") as HTMLElement | null;
-    if (first) first.classList.add("highlighted");
+    if (first) {
+      first.classList.add("highlighted");
+    } else {
+      const empty = document.createElement("div");
+      empty.className = "tree-empty";
+      empty.textContent = "No bookmarks yet";
+      results.appendChild(empty);
+    }
   };
 
   const renderFilter = (query: string) => {
@@ -218,10 +225,22 @@ const init = async () => {
       handleTreeArrowHoriz(e);
       return;
     }
+
+    // Keep focus inside the input — Tab would otherwise move it to the body
+    if (e.key === "Tab") {
+      e.preventDefault();
+    }
   });
 
-  // Mouse hover updates highlight
+  // Mouse hover updates highlight — but only on genuine cursor movement.
+  // Otherwise pseudo-mousemove events (e.g. when results re-render under a
+  // stationary cursor) steal the keyboard-driven highlight.
+  let lastMouseX = -1;
+  let lastMouseY = -1;
   results.addEventListener("mousemove", (e) => {
+    if (e.clientX === lastMouseX && e.clientY === lastMouseY) return;
+    lastMouseX = e.clientX;
+    lastMouseY = e.clientY;
     const target = (e.target as HTMLElement).closest(
       ".tree-item",
     ) as HTMLElement | null;

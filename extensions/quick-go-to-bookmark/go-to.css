@@ -136,10 +136,32 @@ body {
 
 .tree-filter-item {
   padding: 6px 10px;
+  align-items: flex-start;
+}
+
+.tree-filter-item .tree-icon {
+  margin-top: 2px;
+}
+
+.tree-filter-item .tree-label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tree-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
 }
 
 .tree-title {
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
 }
 
 .tree-breadcrumb {
@@ -153,4 +175,35 @@ body {
   color: #9aa0a6;
   text-align: center;
   font-style: italic;
+}
+
+.tree-url {
+  display: block;
+  color: #9aa0a6;
+  font-size: 11px;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hint {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  padding: 6px 12px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 11px;
+  color: #9aa0a6;
+  flex-shrink: 0;
+}
+
+.hint kbd {
+  font-family: inherit;
+  background: #f1f3f4;
+  border: 1px solid #dadce0;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 10px;
+  color: #5f6368;
+  margin: 0 1px;
 }
