@@ -186,6 +186,11 @@ body {
   text-overflow: ellipsis;
 }
 
+.match {
+  color: #4285F4;
+  font-weight: 600;
+}
+
 .hint {
   display: flex;
   gap: 14px;

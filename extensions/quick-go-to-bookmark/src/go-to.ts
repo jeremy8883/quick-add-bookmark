@@ -4,7 +4,7 @@ import {
   TreeState,
   type BookmarkEntry,
 } from "../../../shared/tree";
-import { filterBookmarks, renderFilterResults } from "./filter";
+import { filterBookmarks, renderFilterResults, tokenize } from "./filter";
 import { getFrecencyMap, recordVisit, sortByFrecency } from "./frecency";
 
 type Mode = "tree" | "filter";
@@ -99,9 +99,10 @@ const init = async () => {
   };
 
   const renderFilter = (query: string) => {
+    const terms = tokenize(query);
     const matches = filterBookmarks(allBookmarks, query);
     const ranked = sortByFrecency<BookmarkEntry>(matches, frecencyMap, Date.now());
-    renderFilterResults(results, ranked);
+    renderFilterResults(results, ranked, terms);
   };
 
   const setMode = (next: Mode, query: string) => {

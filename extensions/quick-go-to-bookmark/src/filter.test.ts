@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterBookmarks } from "./filter";
+import { filterBookmarks, highlightSegments, tokenize } from "./filter";
 
 const entries = [
   { id: "1", title: "React Docs", url: "https://react.dev", path: ["Dev", "Frontend"] },
@@ -42,5 +42,81 @@ describe("filterBookmarks", () => {
     expect(filterBookmarks(entries, "   react   docs   ").map((e) => e.id)).toEqual([
       "1",
     ]);
+  });
+});
+
+describe("tokenize", () => {
+  it("lowercases and splits on whitespace", () => {
+    expect(tokenize("React Docs")).toEqual(["react", "docs"]);
+  });
+
+  it("drops empty tokens from extra whitespace", () => {
+    expect(tokenize("   foo   bar  ")).toEqual(["foo", "bar"]);
+  });
+
+  it("returns an empty array for an empty query", () => {
+    expect(tokenize("")).toEqual([]);
+    expect(tokenize("   ")).toEqual([]);
+  });
+});
+
+describe("highlightSegments", () => {
+  it("returns a single non-match segment when no terms", () => {
+    expect(highlightSegments("hello world", [])).toEqual([
+      { text: "hello world", match: false },
+    ]);
+  });
+
+  it("returns a single non-match segment when nothing matches", () => {
+    expect(highlightSegments("hello", ["xyz"])).toEqual([
+      { text: "hello", match: false },
+    ]);
+  });
+
+  it("marks a case-insensitive substring match", () => {
+    expect(highlightSegments("React Docs", ["react"])).toEqual([
+      { text: "React", match: true },
+      { text: " Docs", match: false },
+    ]);
+  });
+
+  it("preserves original casing in match segments", () => {
+    expect(highlightSegments("REACT Docs", ["react"])).toEqual([
+      { text: "REACT", match: true },
+      { text: " Docs", match: false },
+    ]);
+  });
+
+  it("highlights every occurrence of a term", () => {
+    expect(highlightSegments("aba", ["a"])).toEqual([
+      { text: "a", match: true },
+      { text: "b", match: false },
+      { text: "a", match: true },
+    ]);
+  });
+
+  it("merges overlapping match ranges from multiple terms", () => {
+    // "foobar" with terms ["foo", "oob"] — ranges [0,3] and [1,4] merge to [0,4]
+    expect(highlightSegments("foobar", ["foo", "oob"])).toEqual([
+      { text: "foob", match: true },
+      { text: "ar", match: false },
+    ]);
+  });
+
+  it("handles a match at the end of the string", () => {
+    expect(highlightSegments("hello", ["llo"])).toEqual([
+      { text: "he", match: false },
+      { text: "llo", match: true },
+    ]);
+  });
+
+  it("handles full-string match", () => {
+    expect(highlightSegments("foo", ["foo"])).toEqual([
+      { text: "foo", match: true },
+    ]);
+  });
+
+  it("returns a single non-match segment for empty text", () => {
+    expect(highlightSegments("", ["foo"])).toEqual([{ text: "", match: false }]);
   });
 });

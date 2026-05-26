@@ -1,6 +1,9 @@
 import type { BookmarkEntry } from "../../../shared/tree";
 import { BOOKMARK_LEAF_SVG } from "../../../shared/constants";
 
+export const tokenize = (query: string): string[] =>
+  query.toLowerCase().split(/\s+/).filter(Boolean);
+
 /**
  * Whitespace-tokenized substring filter. Every term must appear
  * (case-insensitive) somewhere in the bookmark's title, url, or
@@ -10,7 +13,7 @@ export const filterBookmarks = (
   entries: BookmarkEntry[],
   query: string,
 ): BookmarkEntry[] => {
-  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const terms = tokenize(query);
   if (terms.length === 0) return entries;
   return entries.filter((b) => {
     const haystack = (
@@ -24,9 +27,84 @@ export const filterBookmarks = (
   });
 };
 
+export interface HighlightSegment {
+  text: string;
+  match: boolean;
+}
+
+/**
+ * Split text into alternating match/non-match segments based on the
+ * terms. Matches are case-insensitive substrings; overlapping matches
+ * are merged so each character belongs to at most one segment.
+ */
+export const highlightSegments = (
+  text: string,
+  terms: string[],
+): HighlightSegment[] => {
+  if (terms.length === 0 || text === "") {
+    return [{ text, match: false }];
+  }
+
+  const lower = text.toLowerCase();
+  const ranges: Array<[number, number]> = [];
+  for (const term of terms) {
+    if (!term) continue;
+    let idx = 0;
+    while ((idx = lower.indexOf(term, idx)) !== -1) {
+      ranges.push([idx, idx + term.length]);
+      idx += term.length;
+    }
+  }
+
+  if (ranges.length === 0) return [{ text, match: false }];
+
+  ranges.sort((a, b) => a[0] - b[0]);
+  const merged: Array<[number, number]> = [];
+  for (const [start, end] of ranges) {
+    const last = merged[merged.length - 1];
+    if (last && start <= last[1]) {
+      last[1] = Math.max(last[1], end);
+    } else {
+      merged.push([start, end]);
+    }
+  }
+
+  const segments: HighlightSegment[] = [];
+  let pos = 0;
+  for (const [start, end] of merged) {
+    if (pos < start) {
+      segments.push({ text: text.slice(pos, start), match: false });
+    }
+    segments.push({ text: text.slice(start, end), match: true });
+    pos = end;
+  }
+  if (pos < text.length) {
+    segments.push({ text: text.slice(pos), match: false });
+  }
+  return segments;
+};
+
+const appendHighlighted = (
+  parent: HTMLElement,
+  text: string,
+  terms: string[],
+): void => {
+  for (const seg of highlightSegments(text, terms)) {
+    if (seg.match) {
+      const span = document.createElement("span");
+      span.className = "match";
+      span.textContent = seg.text;
+      parent.appendChild(span);
+    } else {
+      parent.appendChild(document.createTextNode(seg.text));
+    }
+  }
+};
+
 export const renderFilterResults = (
   container: HTMLElement,
   entries: BookmarkEntry[],
+  terms: string[],
 ): void => {
   container.innerHTML = "";
 
@@ -58,13 +136,13 @@ export const renderFilterResults = (
 
     const title = document.createElement("span");
     title.className = "tree-title";
-    title.textContent = entry.title;
+    appendHighlighted(title, entry.title, terms);
     titleRow.appendChild(title);
 
     if (entry.path.length > 0) {
       const bc = document.createElement("span");
       bc.className = "tree-breadcrumb";
-      bc.textContent = entry.path.join(" / ");
+      appendHighlighted(bc, entry.path.join(" / "), terms);
       titleRow.appendChild(bc);
     }
 
@@ -72,7 +150,7 @@ export const renderFilterResults = (
 
     const url = document.createElement("span");
     url.className = "tree-url";
-    url.textContent = entry.url;
+    appendHighlighted(url, entry.url, terms);
     label.appendChild(url);
 
     item.appendChild(label);
