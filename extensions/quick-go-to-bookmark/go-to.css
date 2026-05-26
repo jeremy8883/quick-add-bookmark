@@ -133,3 +133,24 @@ body {
 .tree-children.open {
   display: block;
 }
+
+.tree-filter-item {
+  padding: 6px 10px;
+}
+
+.tree-title {
+  font-weight: 500;
+}
+
+.tree-breadcrumb {
+  color: #9aa0a6;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.tree-empty {
+  padding: 12px 10px;
+  color: #9aa0a6;
+  text-align: center;
+  font-style: italic;
+}
