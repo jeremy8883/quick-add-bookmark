@@ -40,13 +40,24 @@ other two via `scripts/build.js` and `scripts/watch.js`.
 - `src/storage.ts` — added `deviceId`, `deviceName`, `bookmarkUuidMap` keys.
 - Tests: `identity.test.ts` (17 cases), `log.test.ts` (16 cases) covering chain construction, tamper detection, parse round-trip, seq monotonicity. No Chrome/Dropbox APIs touched.
 
+**Phase 3 — Materialize + diff + merge**
+- `src/log.ts` — refactored to expose `OpInput` (bare `{op, data}`) and `TimestampedOp` (`OpInput & {ts, deviceId}`); `Entry = TimestampedOp & {seq, prevHash}`.
+- `src/materialize.ts` — `BookmarkNode`, `TreeState` (flat `uuid → node` map), pure `applyOp(state, op)` per op type, `materialize(entries)`, `childrenOf`, `toSnapshotNodes`.
+- `src/diff.ts` — pure `diff(before, after) → OpInput[]` producing add/remove/rename/urlChange/move per node delta.
+- `src/merge.ts` — pure `merge(localOps, remoteOps) → {applyToLocal, appendToLog, conflicts}`. Conflict resolution per the design doc: delete-vs-modify → modify wins; modify-vs-modify (same op) → later `ts` wins; concurrent-add (URL + title + parentUuid match) → keep lower UUID, emit `remove` for the loser on both sides.
+- Tests: `materialize.test.ts` (20 cases), `diff.test.ts` (11 cases), `merge.test.ts` (18 cases). Covers every op type, every conflict pair, concurrent-add boundary conditions.
+
+**Known phase-3 simplifications to revisit in phase 4:**
+- `merge` does not yet *restore* a deleted node when delete-vs-modify resolves in favor of modify — it records the conflict and applies modify ops (which are no-ops if the node is gone from local state). Phase 4's orchestrator has the ancestor state and can compute the restore.
+- Audit-marker ops for "loser" entries are not persisted; the `conflicts[]` array surfaces them out-of-band. Decide in phase 4 whether to write a `superseded` op type into the log for full audit history.
+
 ---
 
 ## What's next
 
 Follow the phases in the design doc, in order:
 
-3. **Materialize + diff + merge** — pure functions; comprehensive Vitest fixtures covering all op-pair conflicts + the loosened concurrent-add rule (URL + title + parent all match → auto-merge). `SnapshotNode` type in `log.ts` is the placeholder shape; revisit when implementing `materialize.ts`.
+4. **Sync orchestrator (one-shot)** — wire steps 1–9 of the sync algorithm behind a manual "Sync now" button. Pull `bookmarks.log.jsonl` from Dropbox (`/files/download`), verify chain, materialize ancestor at `lastConsumedSeq`, diff local tree → `localOps`, call `merge`, apply `applyToLocal` to the chrome bookmark tree (with the suppression flag stub), push the new tail (`/files/upload` with `mode: update + rev` for optimistic concurrency). Surface conflicts in the popup.
 4. **Sync orchestrator (one-shot)** — manual "Sync now" wires steps 1–9 of the sync algorithm.
 5. **Safety mechanisms** — threshold guard, empty-tree guard, hash-chain verification, device-fingerprint guard.
 6. **Compaction + snapshots + archive** — log compaction triggers, snapshot writing, archive rotation.
@@ -115,7 +126,11 @@ extensions/quick-sync-bookmark/
     config.ts                   ← shipped Dropbox app key (public, PKCE-safe)
     identity.ts                 ← UUID assignment + chromeId↔uuid map
     log.ts                      ← op format, hash chain, JSONL serialize/parse
-    identity.test.ts, log.test.ts
+    materialize.ts              ← replay ops → TreeState (pure)
+    diff.ts                     ← TreeState delta → OpInput[] (pure)
+    merge.ts                    ← three-way merge with conflict resolution (pure)
+    identity.test.ts, log.test.ts, materialize.test.ts,
+    diff.test.ts, merge.test.ts
 docs/
   quick-sync-bookmark-design.md ← architecture / op-log / safety
   quick-sync-bookmark-handover.md  ← this file

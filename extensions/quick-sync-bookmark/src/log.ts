@@ -28,23 +28,20 @@ export type SnapshotData = { nodes: SnapshotNode[] };
 
 export type RestoreData = { toSeq: number };
 
-export type EntryBase = {
-  seq: number;
-  prevHash: string;
-  ts: string;
-  deviceId: string;
-};
+export type OpInput =
+  | { op: "add"; data: AddData }
+  | { op: "remove"; data: RemoveData }
+  | { op: "move"; data: MoveData }
+  | { op: "rename"; data: RenameData }
+  | { op: "urlChange"; data: UrlChangeData }
+  | { op: "snapshot"; data: SnapshotData }
+  | { op: "restore"; data: RestoreData };
 
-export type Entry =
-  | (EntryBase & { op: "add"; data: AddData })
-  | (EntryBase & { op: "remove"; data: RemoveData })
-  | (EntryBase & { op: "move"; data: MoveData })
-  | (EntryBase & { op: "rename"; data: RenameData })
-  | (EntryBase & { op: "urlChange"; data: UrlChangeData })
-  | (EntryBase & { op: "snapshot"; data: SnapshotData })
-  | (EntryBase & { op: "restore"; data: RestoreData });
+export type TimestampedOp = OpInput & { ts: string; deviceId: string };
 
-export type OpType = Entry["op"];
+export type Entry = TimestampedOp & { seq: number; prevHash: string };
+
+export type OpType = OpInput["op"];
 
 const canonicalStringify = (value: unknown): string => {
   if (value === null || value === undefined) return JSON.stringify(value ?? null);
@@ -74,9 +71,7 @@ export const hashEntry = async (entry: Entry): Promise<string> => {
   return toHex(new Uint8Array(digest));
 };
 
-export type NewEntryInput = {
-  op: OpType;
-  data: Entry["data"];
+export type NewEntryInput = OpInput & {
   deviceId: string;
   ts?: string;
 };
