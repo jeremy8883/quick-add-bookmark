@@ -1,10 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <!-- Bookmark, dominant element occupying upper-left -->
-  <path d="M24 12 C24 8 27 4 32 4 L80 4 C85 4 88 8 88 12 L88 116 L56 92 L24 116 Z"
-        fill="#4285F4" stroke="#1a56c4" stroke-width="3"/>
-  <!-- White badge with green sync arrows in bottom-right corner -->
-  <circle cx="96" cy="96" r="28" fill="#ffffff" stroke="#34A853" stroke-width="3"/>
-  <g transform="translate(78 78) scale(1.5)" fill="#34A853">
+  <!-- Sync arrows (Material Design sync glyph scaled to fill canvas) -->
+  <g transform="scale(5.333)" fill="#5f6368">
     <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
   </g>
+  <!-- Small bookmark centered inside the sync ring -->
+  <path d="M53 48 C53 45 55 43 58 43 L70 43 C73 43 75 45 75 48 L75 84 L64 76 L53 84 Z"
+        fill="#4285F4" stroke="#1a56c4" stroke-width="2.5"/>
 </svg>
