@@ -68,6 +68,13 @@ other two via `scripts/build.js` and `scripts/watch.js`.
 - **No `pendingLocalOps` storage.** A mid-sync crash is recoverable by re-running sync (we recompute local ops from a fresh diff each time), but it's slightly less efficient than persisting them. Acceptable for v1.
 - **Delete-vs-modify edge.** If remote modifies a node that local deleted, `applyOpsToChrome` will get a `move`/`rename`/`urlChange` op against a chrome ID that no longer exists; it silently skips. The conflict is recorded in `MergeResult.conflicts` but the node is not auto-restored. Phase 4 records the conflict but doesn't reconstruct; that's a phase-5/phase-8 follow-up using the ancestor state.
 
+**Concurrency / locking — explicit decisions:**
+- **Cross-device concurrent syncs are handled by Dropbox `rev`** (optimistic concurrency, `mode: update + rev`). If two devices push at the same observed rev, the second fails with `DropboxRevConflict` and `syncNow()` returns `result: "rev-conflict"`. Today the user has to click "Sync now" again to retry. **TODO:** add an auto-retry loop inside `syncNow()` (cap at ~3 attempts) so the retry is transparent. Cheap, deferrable.
+- **Same-device concurrent syncs are not possible in phase 4.** The popup is single-instance, the button disables during sync, and there's no other entry point. **Becomes a real concern in phase 7** when the listener-driven sync runs in the service worker — that's a different JS context from the popup, so two `syncNow()` invocations could overlap and double-apply ops to Chrome. **Phase 7 must add:**
+  1. In-memory `let syncInFlight = false` inside the SW for SW-internal serialization.
+  2. Persistent lock in `chrome.storage.local` (`{ syncInFlight, startedAt }`) with a ~60s stale-detection timeout, to cover popup↔SW races and SW restarts.
+- **A Dropbox-side distributed lock (`/sync-lock-<device>.lock`) is deliberately not done** — it would only re-implement what `rev` already gives us, with worse failure modes (stale locks, network partitions).
+
 ---
 
 ## What's next
