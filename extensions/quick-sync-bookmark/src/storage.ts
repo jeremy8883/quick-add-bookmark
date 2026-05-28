@@ -6,6 +6,10 @@ const KEYS = {
   deviceId: "device.id",
   deviceName: "device.name",
   bookmarkUuidMap: "bookmarks.uuidMap",
+  lastConsumedSeq: "sync.lastConsumedSeq",
+  lastConsumedHash: "sync.lastConsumedHash",
+  lastRemoteRev: "sync.lastRemoteRev",
+  lastSyncedAt: "sync.lastSyncedAt",
 } as const;
 
 export type StorageKey = keyof typeof KEYS;

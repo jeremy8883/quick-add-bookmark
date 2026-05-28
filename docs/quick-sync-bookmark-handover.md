@@ -51,13 +51,30 @@ other two via `scripts/build.js` and `scripts/watch.js`.
 - `merge` does not yet *restore* a deleted node when delete-vs-modify resolves in favor of modify — it records the conflict and applies modify ops (which are no-ops if the node is gone from local state). Phase 4's orchestrator has the ancestor state and can compute the restore.
 - Audit-marker ops for "loser" entries are not persisted; the `conflicts[]` array surfaces them out-of-band. Decide in phase 4 whether to write a `superseded` op type into the log for full audit history.
 
+**Phase 4 — Sync orchestrator (one-shot)**
+- `src/roots.ts` — logical root UUIDs (`LOGICAL_ROOT_BAR`, `LOGICAL_ROOT_OTHER`, `LOGICAL_ROOT_MOBILE`) + Chromium platform↔logical mapping. Structured so a Firefox port can add its own mapping table.
+- `src/dropbox.ts` — added `downloadFile(path)` (returns `null` on `path/not_found` to detect first sync) and `uploadFile(path, content, mode)` supporting `add` / `overwrite` / `update + rev`. Surfaces rev mismatches as `DropboxRevConflict`.
+- `src/chrome-tree.ts` — pure `treeStateFromChromeNodes(rootNodes, initialMap, generate)` that assigns UUIDs to non-root nodes and maps chrome roots `"1"`/`"2"`/`"3"` to the logical UUIDs. `readChromeTree()` wraps it with storage I/O. `applyOpsToChrome(ops, uuidMap, opts)` translates ops back through the uuidMap + root mapping, topo-sorting `add` ops so parents land before children.
+- `src/sync.ts` — `syncNow()` orchestrator: pull → verify chain → continuity check vs `lastConsumedSeq`/`lastConsumedHash` → diff local tree against materialized ancestor → merge → apply to chrome → build + push new tail (with `mode: update + rev`, or `add` on first sync). Returns `SyncSummary` with op counts + conflicts. Rev conflicts surface for caller-driven retry.
+- `src/storage.ts` — added `lastConsumedSeq`, `lastConsumedHash`, `lastRemoteRev`, `lastSyncedAt`.
+- `popup.html`/`popup.ts`/`popup.css` — "Sync now" button, "Last synced Nm ago", result line ("N from remote, M pushed, K conflicts").
+- Tests: `roots.test.ts` (12 cases), `chrome-tree.test.ts` (7 cases) covering platform↔logical mapping and pure tree-state conversion. Sync/chrome.bookmarks/Dropbox integration is verified by manual browser testing — they aren't unit-testable without a heavier mock harness.
+
+**Phase 4 known limitations / TODOs to revisit:**
+- **Manual only.** No bookmark-change listeners or debounce → phase 7. To trigger a sync after local changes, open the popup and click "Sync now."
+- **Suppression is a stub.** `applyOpsToChrome` accepts an `opts.suppress(chromeId)` callback but no caller wires it. Phase 7 adds the real `recentlyAppliedByUs` set + listener registration.
+- **No safety guards.** Threshold guard, empty-tree guard, device-fingerprint guard are phase 5.
+- **No compaction / snapshots / archive.** Phase 6.
+- **No `pendingLocalOps` storage.** A mid-sync crash is recoverable by re-running sync (we recompute local ops from a fresh diff each time), but it's slightly less efficient than persisting them. Acceptable for v1.
+- **Delete-vs-modify edge.** If remote modifies a node that local deleted, `applyOpsToChrome` will get a `move`/`rename`/`urlChange` op against a chrome ID that no longer exists; it silently skips. The conflict is recorded in `MergeResult.conflicts` but the node is not auto-restored. Phase 4 records the conflict but doesn't reconstruct; that's a phase-5/phase-8 follow-up using the ancestor state.
+
 ---
 
 ## What's next
 
 Follow the phases in the design doc, in order:
 
-4. **Sync orchestrator (one-shot)** — wire steps 1–9 of the sync algorithm behind a manual "Sync now" button. Pull `bookmarks.log.jsonl` from Dropbox (`/files/download`), verify chain, materialize ancestor at `lastConsumedSeq`, diff local tree → `localOps`, call `merge`, apply `applyToLocal` to the chrome bookmark tree (with the suppression flag stub), push the new tail (`/files/upload` with `mode: update + rev` for optimistic concurrency). Surface conflicts in the popup.
+5. **Safety mechanisms** — wire the threshold guard (`>20%` or `>50` deletions abort), empty-tree guard (remote near-empty + local non-empty → abort), device-fingerprint guard (lower threshold when proposed deletions all come from an unseen device), and stricter hash-chain abort path. All live in a new `src/safety.ts`; the orchestrator calls them between merge and apply.
 4. **Sync orchestrator (one-shot)** — manual "Sync now" wires steps 1–9 of the sync algorithm.
 5. **Safety mechanisms** — threshold guard, empty-tree guard, hash-chain verification, device-fingerprint guard.
 6. **Compaction + snapshots + archive** — log compaction triggers, snapshot writing, archive rotation.
@@ -129,8 +146,10 @@ extensions/quick-sync-bookmark/
     materialize.ts              ← replay ops → TreeState (pure)
     diff.ts                     ← TreeState delta → OpInput[] (pure)
     merge.ts                    ← three-way merge with conflict resolution (pure)
-    identity.test.ts, log.test.ts, materialize.test.ts,
-    diff.test.ts, merge.test.ts
+    roots.ts                    ← logical root UUIDs + platform mapping
+    chrome-tree.ts              ← chrome.bookmarks read/write + topo-sort
+    sync.ts                     ← orchestrator: pull/merge/apply/push
+    *.test.ts                   ← Vitest unit tests for pure modules
 docs/
   quick-sync-bookmark-design.md ← architecture / op-log / safety
   quick-sync-bookmark-handover.md  ← this file
