@@ -16,15 +16,13 @@ const renderState = async () => {
   const account = await get<DropboxAccount>("dropboxAccount");
 
   if (account) {
-    if (status) {
-      status.textContent = "Connected.";
-      status.className = "status-connected";
-    }
+    if (status) status.hidden = true;
     if (connectForm) connectForm.hidden = true;
     if (connectedInfo) connectedInfo.hidden = false;
     if (accountEmail) accountEmail.textContent = account.email;
   } else {
     if (status) {
+      status.hidden = false;
       status.textContent = "Not connected.";
       status.className = "muted";
     }

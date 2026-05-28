@@ -47,6 +47,12 @@ body {
   gap: 12px;
 }
 
+#connected-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .card h2 {
   font-size: 16px;
   font-weight: 600;
