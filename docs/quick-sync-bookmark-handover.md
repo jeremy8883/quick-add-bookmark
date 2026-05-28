@@ -36,7 +36,7 @@ other two via `scripts/build.js` and `scripts/watch.js`.
 
 **Phase 2 — Identity + log primitives**
 - `src/identity.ts` — `UuidMap` type + pure helpers (`assignUuid`, `lookupUuid`, `lookupChromeId`, `removeMapping`, `renameChromeId`) and storage-backed wrappers (`loadMap`/`saveMap`, `getOrAssignUuid`, `getOrInitDeviceId`, `getDeviceName`/`setDeviceName`).
-- `src/log.ts` — discriminated `Entry` union for `add`/`remove`/`move`/`rename`/`urlChange`/`snapshot`/`restore`; canonical-JSON SHA-256 hash chain via `crypto.subtle`; `buildNextEntry`, `serializeEntries`, `parseEntries`, `verifyChain`. `GENESIS_PREV_HASH = "GENESIS"`.
+- `src/log.ts` — discriminated `Entry` union for `add`/`remove`/`move`/`rename`/`urlChange`/`snapshot`/`restore`; canonical-JSON SHA-256 hash chain via `crypto.subtle`; `buildNextEntry`, `serializeEntries`, `parseEntries`, `verifyChain`. Genesis entry has `prevHash: null`.
 - `src/storage.ts` — added `deviceId`, `deviceName`, `bookmarkUuidMap` keys.
 - Tests: `identity.test.ts` (17 cases), `log.test.ts` (16 cases) covering chain construction, tamper detection, parse round-trip, seq monotonicity. No Chrome/Dropbox APIs touched.
 

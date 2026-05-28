@@ -1,5 +1,3 @@
-export const GENESIS_PREV_HASH = "GENESIS";
-
 export type AddData = {
   uuid: string;
   parentUuid: string;
@@ -39,7 +37,7 @@ export type OpInput =
 
 export type TimestampedOp = OpInput & { ts: string; deviceId: string };
 
-export type Entry = TimestampedOp & { seq: number; prevHash: string };
+export type Entry = TimestampedOp & { seq: number; prevHash: string | null };
 
 export type OpType = OpInput["op"];
 
@@ -81,7 +79,7 @@ export const buildNextEntry = async (
   input: NewEntryInput,
 ): Promise<Entry> => {
   const seq = prev ? prev.seq + 1 : 1;
-  const prevHash = prev ? await hashEntry(prev) : GENESIS_PREV_HASH;
+  const prevHash = prev ? await hashEntry(prev) : null;
   const ts = input.ts ?? new Date().toISOString();
   return {
     seq,
@@ -130,10 +128,10 @@ export const verifyChain = async (entries: Entry[]): Promise<VerifyResult> => {
       };
     }
     if (i === 0) {
-      if (entry.prevHash !== GENESIS_PREV_HASH) {
+      if (entry.prevHash !== null) {
         return {
           ok: false,
-          reason: `Genesis entry must have prevHash "${GENESIS_PREV_HASH}"`,
+          reason: `Genesis entry must have prevHash null`,
           atSeq: entry.seq,
         };
       }

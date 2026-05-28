@@ -27,7 +27,7 @@ const wrap = (input: OpInput, seq: number, ts = "2026-01-01T00:00:00Z"): Entry =
   ({
     ...input,
     seq,
-    prevHash: seq === 1 ? "GENESIS" : "x",
+    prevHash: seq === 1 ? null : "x",
     ts,
     deviceId: "device-A",
   }) as Entry;

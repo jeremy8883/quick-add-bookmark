@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import {
-  GENESIS_PREV_HASH,
   buildNextEntry,
   hashEntry,
   parseEntries,
@@ -37,10 +36,10 @@ const buildChain = async (count: number): Promise<Entry[]> => {
 };
 
 describe("buildNextEntry", () => {
-  it("first entry has seq 1 and genesis prevHash", async () => {
+  it("first entry has seq 1 and null prevHash", async () => {
     const e = await buildNextEntry(undefined, addInput("u1", "A", "https://a"));
     expect(e.seq).toBe(1);
-    expect(e.prevHash).toBe(GENESIS_PREV_HASH);
+    expect(e.prevHash).toBeNull();
     expect(e.op).toBe("add");
     expect(e.deviceId).toBe("device-A");
   });
