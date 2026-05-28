@@ -2,6 +2,7 @@ import { startOAuth } from "./oauth";
 import { getCurrentAccount, revokeToken } from "./dropbox";
 import type { DropboxAccount } from "./dropbox";
 import { get, set } from "./storage";
+import { DEFAULT_DROPBOX_APP_KEY } from "./config";
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T | null;
@@ -19,7 +20,9 @@ const renderState = async () => {
   }
 
   const savedAppKey = await get<string>("dropboxAppKey");
-  if (appKeyInput && savedAppKey) appKeyInput.value = savedAppKey;
+  if (appKeyInput && savedAppKey && savedAppKey !== DEFAULT_DROPBOX_APP_KEY) {
+    appKeyInput.value = savedAppKey;
+  }
 
   const account = await get<DropboxAccount>("dropboxAccount");
 
@@ -51,11 +54,7 @@ const showError = (msg: string) => {
 
 $("connect-btn")?.addEventListener("click", async () => {
   const appKeyInput = $<HTMLInputElement>("app-key");
-  const appKey = appKeyInput?.value.trim();
-  if (!appKey) {
-    showError("Please enter your Dropbox app key.");
-    return;
-  }
+  const appKey = appKeyInput?.value.trim() || DEFAULT_DROPBOX_APP_KEY;
   await set("dropboxAppKey", appKey);
   try {
     await startOAuth(appKey);

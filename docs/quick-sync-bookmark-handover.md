@@ -53,23 +53,36 @@ Follow the phases in the design doc, in order:
 
 ## How to try what's built
 
-The OAuth flow needs a real Dropbox app to test end-to-end:
+The default app key is shipped in `src/config.ts` (`DEFAULT_DROPBOX_APP_KEY`), so end-to-end is one click for most users:
 
 1. `npm run build`, then load `dist/quick-sync-bookmark/` as an unpacked extension in Chrome (`chrome://extensions` → Developer mode → Load unpacked).
-2. Register an app at <https://www.dropbox.com/developers/apps>:
-   - **App folder** access (sandboxed scope).
-   - Scopes: `account_info.read`, `files.content.read`, `files.content.write`, `files.metadata.read`, `files.metadata.write`.
-   - Add the redirect URI shown in the extension's options page (`https://<extension-id>.chromiumapp.org/`).
-3. Open the extension's options page, paste the app key, click **Connect to Dropbox**.
-4. Popup should now show "Connected as <your email>".
+2. **One-time per install:** copy the extension's options-page redirect URI (shown in the *Advanced* details) and add it to the registered Dropbox app's allowed redirect URIs. See the extension-ID caveat below.
+3. Open the extension's options page → **Connect to Dropbox**. Authorize. Popup should now show "Connected as <your email>".
+
+To use a different Dropbox app (forks, self-hosted): expand *Advanced* in the options page and paste a custom app key.
 
 No bookmarks are touched yet — sync logic is phase 2+.
+
+### Extension-ID caveat
+
+The OAuth redirect URI is `https://<extension-id>.chromiumapp.org/`, derived
+from the extension's ID. For unpacked extensions, the ID is generated per
+install (different per machine) unless we pin it. Until we publish or pin:
+
+- Each dev install of the extension gets its own redirect URI.
+- Add each new install's URI to the Dropbox app's allowed redirect URIs (the
+  Dropbox app config supports multiple — just keep appending).
+
+To fix this for distribution, add a `"key"` field to `manifest.json` containing
+the base64-encoded SPKI public key from a generated keypair; the extension ID
+will then be stable across installs and a single redirect URI is enough. Defer
+until closer to publishing.
 
 ---
 
 ## Open decisions
 
-- **Default vs. BYOA app key.** Currently bring-your-own; user enters the app key in options. If we register a single shared app and ship its key, the user just clicks Connect (one-step). Trade-off: the shared app key is visible in the extension source (fine for PKCE — it's not a secret) and rate limits hit the shared app. *Next action: decide and either keep current BYOA flow or ship a shared key.*
+- **Stable extension ID.** Pin the manifest `key` before broad distribution so the OAuth redirect URI is the same across installs (see *Extension-ID caveat* above).
 - **Encryption at rest.** v1 trusts Dropbox; v2 could add a user-supplied passphrase. Decide before public release.
 - **Conflict UI specifics.** Defer to phase 8 when there are real conflicts to design against.
 - **Settings defaults.** Thresholds (20% deletion / 50 items / 5 MB or 10k entries for compaction) are educated guesses; tune after dogfooding.
@@ -91,6 +104,7 @@ extensions/quick-sync-bookmark/
     oauth.ts                    ← PKCE flow + refresh
     dropbox.ts                  ← minimal RPC client (account, revoke)
     storage.ts                  ← typed chrome.storage.local
+    config.ts                   ← shipped Dropbox app key (public, PKCE-safe)
 docs/
   quick-sync-bookmark-design.md ← architecture / op-log / safety
   quick-sync-bookmark-handover.md  ← this file

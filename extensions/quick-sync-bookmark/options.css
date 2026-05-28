@@ -71,6 +71,42 @@ body {
   word-break: break-all;
 }
 
+.advanced {
+  border-top: 1px solid #e8eaed;
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.advanced > summary {
+  cursor: pointer;
+  color: #5f6368;
+  font-size: 13px;
+  user-select: none;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.advanced > summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced > summary::before {
+  content: "▸";
+  font-size: 10px;
+  transition: transform 0.15s;
+  display: inline-block;
+}
+
+.advanced[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.advanced > *:not(summary) {
+  margin-top: 10px;
+}
+
 .row {
   display: flex;
   align-items: center;
