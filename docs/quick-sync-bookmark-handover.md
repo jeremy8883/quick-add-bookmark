@@ -75,6 +75,16 @@ other two via `scripts/build.js` and `scripts/watch.js`.
   2. Persistent lock in `chrome.storage.local` (`{ syncInFlight, startedAt }`) with a ~60s stale-detection timeout, to cover popup↔SW races and SW restarts.
 - **A Dropbox-side distributed lock (`/sync-lock-<device>.lock`) is deliberately not done** — it would only re-implement what `rev` already gives us, with worse failure modes (stale locks, network partitions).
 
+**Future bandwidth optimisations (revisit during phase 6 / dogfooding):**
+
+Dropbox has no append API — every `uploadFile` re-sends the whole log. Current plan: keep it acceptable via compaction (5MB / 10k entries). If real-world numbers show the per-sync upload getting painful before compaction kicks in, three escalating options:
+
+1. **Tighter compaction thresholds.** Drop from 5MB to ~500KB. Trades more frequent snapshot writes for smaller per-sync uploads. Lowest-risk change — same code path, different constants.
+2. **Sharded log (git-pack-style).** Split into immutable chunks: `/log/0000.jsonl` filled to N entries, then close it and start `/log/0001.jsonl`. Read = download all chunks; push = upload only the active chunk. Each push stays small regardless of total history size. More code (chunk discovery, multi-file materialize), more state (current chunk index).
+3. **Per-device append-only files.** `/by-device/<device-uuid>.jsonl`, each device only writes its own. Merge at read time. Each device's file stays small without compaction because it only holds *that* device's ops. Read path gets harder (list folder + N downloads + merged materialize), and the merge semantics shift toward CRDT-style. Highest complexity, highest payoff for very active multi-device users.
+
+Don't pick one in the abstract — pick it after dogfooding when you can see the actual log-size growth curve and per-sync upload size.
+
 ---
 
 ## What's next
