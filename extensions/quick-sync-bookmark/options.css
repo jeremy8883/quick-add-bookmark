@@ -47,10 +47,8 @@ body {
   gap: 12px;
 }
 
-#connected-info:not([hidden]) {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.connected-info > * + * {
+  margin-top: 12px;
 }
 
 .card h2 {
