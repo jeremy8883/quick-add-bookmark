@@ -15,6 +15,33 @@
     <section class="card">
       <h2>Dropbox</h2>
       <p id="account-status" class="muted">Not connected.</p>
+
+      <div id="connect-form">
+        <div class="row">
+          <label for="app-key">App key</label>
+          <input type="text" id="app-key" placeholder="Your Dropbox app key" autocomplete="off" spellcheck="false">
+        </div>
+        <p class="muted small">
+          Register an app at <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener">dropbox.com/developers/apps</a>
+          with <strong>App folder</strong> access. Required scopes:
+          <code>account_info.read</code>,
+          <code>files.content.read</code>,
+          <code>files.content.write</code>,
+          <code>files.metadata.read</code>,
+          <code>files.metadata.write</code>.
+          Set the redirect URI to <code id="redirect-uri">…</code>.
+        </p>
+        <div class="row">
+          <button id="connect-btn" class="btn btn-primary">Connect to Dropbox</button>
+        </div>
+      </div>
+
+      <div id="connected-info" hidden>
+        <p>Connected as <strong id="account-email"></strong></p>
+        <div class="row">
+          <button id="disconnect-btn" class="btn btn-danger">Disconnect</button>
+        </div>
+      </div>
     </section>
   </main>
   <script src="options.js"></script>

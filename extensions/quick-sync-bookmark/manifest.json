@@ -3,7 +3,11 @@
   "name": "Quick Sync Bookmark",
   "version": "0.1.0",
   "description": "Sync bookmarks across browsers and devices using Dropbox. Three-way merge, append-only history, no accidental wipes.",
-  "permissions": ["bookmarks", "storage"],
+  "permissions": ["bookmarks", "storage", "identity"],
+  "host_permissions": [
+    "https://api.dropboxapi.com/*",
+    "https://content.dropboxapi.com/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },

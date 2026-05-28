@@ -57,6 +57,20 @@ body {
   font-size: 13px;
 }
 
+.small {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.small code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: #f1f3f4;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 11px;
+  word-break: break-all;
+}
+
 .row {
   display: flex;
   align-items: center;
