@@ -1,4 +1,5 @@
 import { get, set } from "./storage";
+import { DEFAULT_DROPBOX_APP_KEY } from "./config";
 
 const AUTH_URL = "https://www.dropbox.com/oauth2/authorize";
 const TOKEN_URL = "https://api.dropboxapi.com/oauth2/token";
@@ -80,14 +81,13 @@ export const startOAuth = async (appKey: string): Promise<void> => {
 };
 
 const refreshAccessToken = async (): Promise<string> => {
-  const appKey = await get<string>("dropboxAppKey");
   const refreshToken = await get<string>("dropboxRefreshToken");
-  if (!appKey || !refreshToken) throw new Error("Not connected");
+  if (!refreshToken) throw new Error("Not connected");
 
   const body = new URLSearchParams({
     grant_type: "refresh_token",
     refresh_token: refreshToken,
-    client_id: appKey,
+    client_id: DEFAULT_DROPBOX_APP_KEY,
   });
 
   const res = await fetch(TOKEN_URL, {

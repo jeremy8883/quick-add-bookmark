@@ -20,25 +20,6 @@
         <div class="row">
           <button id="connect-btn" class="btn btn-primary">Connect to Dropbox</button>
         </div>
-
-        <details class="advanced">
-          <summary>Use a different app key (advanced)</summary>
-          <div class="row">
-            <label for="app-key">App key</label>
-            <input type="text" id="app-key" placeholder="Leave blank to use the shipped app" autocomplete="off" spellcheck="false">
-          </div>
-          <p class="muted small">
-            For forks or self-hosted setups. Register an app at
-            <a href="https://www.dropbox.com/developers/apps" target="_blank" rel="noopener">dropbox.com/developers/apps</a>
-            with <strong>App folder</strong> access. Required scopes:
-            <code>account_info.read</code>,
-            <code>files.content.read</code>,
-            <code>files.content.write</code>,
-            <code>files.metadata.read</code>,
-            <code>files.metadata.write</code>.
-            Add this redirect URI to the app's allowed list: <code id="redirect-uri">…</code>.
-          </p>
-        </details>
       </div>
 
       <div id="connected-info" hidden>

@@ -53,36 +53,39 @@ Follow the phases in the design doc, in order:
 
 ## How to try what's built
 
-The default app key is shipped in `src/config.ts` (`DEFAULT_DROPBOX_APP_KEY`), so end-to-end is one click for most users:
+The default app key is shipped in `src/config.ts` (`DEFAULT_DROPBOX_APP_KEY`), and the extension ID is pinned via the `"key"` field in `manifest.json`, so the OAuth redirect URI is the same on every install.
+
+**One-time Dropbox app setup** (already done; record for posterity): add this redirect URI to the Dropbox app's allowed list:
+
+```
+https://iiikikfjiphciidpnnpkafjkkmhdepke.chromiumapp.org/
+```
+
+**Per install:**
 
 1. `npm run build`, then load `dist/quick-sync-bookmark/` as an unpacked extension in Chrome (`chrome://extensions` → Developer mode → Load unpacked).
-2. **One-time per install:** copy the extension's options-page redirect URI (shown in the *Advanced* details) and add it to the registered Dropbox app's allowed redirect URIs. See the extension-ID caveat below.
-3. Open the extension's options page → **Connect to Dropbox**. Authorize. Popup should now show "Connected as <your email>".
-
-To use a different Dropbox app (forks, self-hosted): expand *Advanced* in the options page and paste a custom app key.
+2. Open the extension's options page → **Connect to Dropbox**. Authorize. Popup should now show "Connected as <your email>".
 
 No bookmarks are touched yet — sync logic is phase 2+.
 
-### Extension-ID caveat
+### Extension signing key
 
-The OAuth redirect URI is `https://<extension-id>.chromiumapp.org/`, derived
-from the extension's ID. For unpacked extensions, the ID is generated per
-install (different per machine) unless we pin it. Until we publish or pin:
+The manifest `key` field (public SPKI) pins the extension ID to
+`iiikikfjiphciidpnnpkafjkkmhdepke`. The matching private key lives at
+`extensions/quick-sync-bookmark/signing-key.pem` and is gitignored
+(`extensions/*/signing-key.pem` in `.gitignore`). **Back this file up
+somewhere safe** — losing it means the next regeneration produces a
+different ID, breaking the Dropbox app's registered redirect URI.
 
-- Each dev install of the extension gets its own redirect URI.
-- Add each new install's URI to the Dropbox app's allowed redirect URIs (the
-  Dropbox app config supports multiple — just keep appending).
-
-To fix this for distribution, add a `"key"` field to `manifest.json` containing
-the base64-encoded SPKI public key from a generated keypair; the extension ID
-will then be stable across installs and a single redirect URI is enough. Defer
-until closer to publishing.
+The private key is only strictly required for signing distributable
+`.crx` files (self-distribution). For Chrome Web Store publishing,
+the store handles signing; the public `key` in the manifest is what
+keeps the ID stable across installs.
 
 ---
 
 ## Open decisions
 
-- **Stable extension ID.** Pin the manifest `key` before broad distribution so the OAuth redirect URI is the same across installs (see *Extension-ID caveat* above).
 - **Encryption at rest.** v1 trusts Dropbox; v2 could add a user-supplied passphrase. Decide before public release.
 - **Conflict UI specifics.** Defer to phase 8 when there are real conflicts to design against.
 - **Settings defaults.** Thresholds (20% deletion / 50 items / 5 MB or 10k entries for compaction) are educated guesses; tune after dogfooding.

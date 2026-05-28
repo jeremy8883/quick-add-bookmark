@@ -1,5 +1,4 @@
 const KEYS = {
-  dropboxAppKey: "dropbox.appKey",
   dropboxAccessToken: "dropbox.accessToken",
   dropboxRefreshToken: "dropbox.refreshToken",
   dropboxAccessTokenExpiresAt: "dropbox.accessTokenExpiresAt",

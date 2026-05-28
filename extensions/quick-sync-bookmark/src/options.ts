@@ -12,17 +12,6 @@ const renderState = async () => {
   const connectForm = $("connect-form");
   const connectedInfo = $("connected-info");
   const accountEmail = $("account-email");
-  const appKeyInput = $<HTMLInputElement>("app-key");
-  const redirectUriEl = $("redirect-uri");
-
-  if (redirectUriEl) {
-    redirectUriEl.textContent = chrome.identity.getRedirectURL();
-  }
-
-  const savedAppKey = await get<string>("dropboxAppKey");
-  if (appKeyInput && savedAppKey && savedAppKey !== DEFAULT_DROPBOX_APP_KEY) {
-    appKeyInput.value = savedAppKey;
-  }
 
   const account = await get<DropboxAccount>("dropboxAccount");
 
@@ -53,11 +42,8 @@ const showError = (msg: string) => {
 };
 
 $("connect-btn")?.addEventListener("click", async () => {
-  const appKeyInput = $<HTMLInputElement>("app-key");
-  const appKey = appKeyInput?.value.trim() || DEFAULT_DROPBOX_APP_KEY;
-  await set("dropboxAppKey", appKey);
   try {
-    await startOAuth(appKey);
+    await startOAuth(DEFAULT_DROPBOX_APP_KEY);
     const account = await getCurrentAccount();
     await set("dropboxAccount", account);
     await renderState();
