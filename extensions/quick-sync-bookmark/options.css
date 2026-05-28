@@ -1,0 +1,127 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  color: #202124;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+}
+
+.page-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.muted {
+  color: #5f6368;
+  font-size: 13px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.row label {
+  font-size: 13px;
+  color: #5f6368;
+  min-width: 96px;
+}
+
+.row input[type="text"],
+.row input[type="password"] {
+  flex: 1;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  outline: none;
+}
+
+.row input:focus {
+  border-color: #4285F4;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.15);
+}
+
+.btn {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #202124;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #f1f3f4;
+}
+
+.btn-primary {
+  background: #4285F4;
+  color: #ffffff;
+  border-color: #4285F4;
+}
+
+.btn-primary:hover {
+  background: #3b78e7;
+}
+
+.btn-danger {
+  color: #d93025;
+}
+
+.btn-danger:hover {
+  background: #fce8e6;
+}
+
+.status-connected {
+  color: #34A853;
+}
+
+.status-error {
+  color: #d93025;
+}

@@ -24,6 +24,22 @@ const EXTENSIONS = [
     ],
     staticAssets: ["manifest.json", "go-to.html", "go-to.css", "icons"],
   },
+  {
+    name: "quick-sync-bookmark",
+    entries: [
+      { src: "src/popup.ts", out: "popup.js" },
+      { src: "src/options.ts", out: "options.js" },
+      { src: "src/background.ts", out: "background.js" },
+    ],
+    staticAssets: [
+      "manifest.json",
+      "popup.html",
+      "popup.css",
+      "options.html",
+      "options.css",
+      "icons",
+    ],
+  },
 ];
 
 const esbuild = bin("esbuild");
