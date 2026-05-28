@@ -47,7 +47,7 @@ body {
   gap: 12px;
 }
 
-#connected-info {
+#connected-info:not([hidden]) {
   display: flex;
   flex-direction: column;
   gap: 12px;
