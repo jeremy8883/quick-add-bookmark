@@ -34,14 +34,19 @@ other two via `scripts/build.js` and `scripts/watch.js`.
 
 **Note:** later icon-refinement commit (sync arrows dominant) may also be in history.
 
+**Phase 2 — Identity + log primitives**
+- `src/identity.ts` — `UuidMap` type + pure helpers (`assignUuid`, `lookupUuid`, `lookupChromeId`, `removeMapping`, `renameChromeId`) and storage-backed wrappers (`loadMap`/`saveMap`, `getOrAssignUuid`, `getOrInitDeviceId`, `getDeviceName`/`setDeviceName`).
+- `src/log.ts` — discriminated `Entry` union for `add`/`remove`/`move`/`rename`/`urlChange`/`snapshot`/`restore`; canonical-JSON SHA-256 hash chain via `crypto.subtle`; `buildNextEntry`, `serializeEntries`, `parseEntries`, `verifyChain`. `GENESIS_PREV_HASH = "GENESIS"`.
+- `src/storage.ts` — added `deviceId`, `deviceName`, `bookmarkUuidMap` keys.
+- Tests: `identity.test.ts` (17 cases), `log.test.ts` (16 cases) covering chain construction, tamper detection, parse round-trip, seq monotonicity. No Chrome/Dropbox APIs touched.
+
 ---
 
 ## What's next
 
 Follow the phases in the design doc, in order:
 
-2. **Identity + log primitives** — UUID assignment, `chromeId↔uuid` map, op format with hash chain, JSONL log append/read/parse. All pure, unit-tested.
-3. **Materialize + diff + merge** — pure functions; comprehensive Vitest fixtures covering all op-pair conflicts + the loosened concurrent-add rule (URL + title + parent all match → auto-merge).
+3. **Materialize + diff + merge** — pure functions; comprehensive Vitest fixtures covering all op-pair conflicts + the loosened concurrent-add rule (URL + title + parent all match → auto-merge). `SnapshotNode` type in `log.ts` is the placeholder shape; revisit when implementing `materialize.ts`.
 4. **Sync orchestrator (one-shot)** — manual "Sync now" wires steps 1–9 of the sync algorithm.
 5. **Safety mechanisms** — threshold guard, empty-tree guard, hash-chain verification, device-fingerprint guard.
 6. **Compaction + snapshots + archive** — log compaction triggers, snapshot writing, archive rotation.
@@ -108,6 +113,9 @@ extensions/quick-sync-bookmark/
     dropbox.ts                  ← minimal RPC client (account, revoke)
     storage.ts                  ← typed chrome.storage.local
     config.ts                   ← shipped Dropbox app key (public, PKCE-safe)
+    identity.ts                 ← UUID assignment + chromeId↔uuid map
+    log.ts                      ← op format, hash chain, JSONL serialize/parse
+    identity.test.ts, log.test.ts
 docs/
   quick-sync-bookmark-design.md ← architecture / op-log / safety
   quick-sync-bookmark-handover.md  ← this file

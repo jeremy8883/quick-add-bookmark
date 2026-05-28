@@ -3,6 +3,9 @@ const KEYS = {
   dropboxRefreshToken: "dropbox.refreshToken",
   dropboxAccessTokenExpiresAt: "dropbox.accessTokenExpiresAt",
   dropboxAccount: "dropbox.account",
+  deviceId: "device.id",
+  deviceName: "device.name",
+  bookmarkUuidMap: "bookmarks.uuidMap",
 } as const;
 
 export type StorageKey = keyof typeof KEYS;
