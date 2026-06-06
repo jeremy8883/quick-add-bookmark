@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Quick Find",
+  "version": "0.1.0",
+  "description": "Find-on-page with regex, match case, whole word, and scrollbar match markers.",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "commands": {
+    "toggle-quick-find": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Open Quick Find"
+    }
+  }
+}
