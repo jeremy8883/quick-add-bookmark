@@ -1,5 +1,4 @@
-import type { BookmarkEntry } from "../../../shared/tree";
-import { BOOKMARK_LEAF_SVG } from "../../../shared/constants";
+import { buildFaviconIcon, type BookmarkEntry } from "../../../shared/tree";
 
 export const tokenize = (query: string): string[] =>
   query.toLowerCase().split(/\s+/).filter(Boolean);
@@ -105,6 +104,7 @@ export const renderFilterResults = (
   container: HTMLElement,
   entries: BookmarkEntry[],
   terms: string[],
+  preserveHighlightId?: string,
 ): void => {
   container.innerHTML = "";
 
@@ -116,17 +116,20 @@ export const renderFilterResults = (
     return;
   }
 
+  const preservedIdx = preserveHighlightId
+    ? entries.findIndex((e) => e.id === preserveHighlightId)
+    : -1;
+  const highlightIdx = preservedIdx >= 0 ? preservedIdx : 0;
+
   for (let i = 0; i < entries.length; i++) {
     const entry = entries[i];
     const item = document.createElement("div");
     item.className = "tree-item tree-bookmark tree-filter-item";
-    if (i === 0) item.classList.add("highlighted");
+    if (i === highlightIdx) item.classList.add("highlighted");
     item.dataset.id = entry.id;
     item.dataset.url = entry.url;
 
-    const iconSpan = document.createElement("span");
-    iconSpan.innerHTML = BOOKMARK_LEAF_SVG;
-    item.appendChild(iconSpan.firstElementChild!);
+    item.appendChild(buildFaviconIcon(entry.url));
 
     const label = document.createElement("span");
     label.className = "tree-label";

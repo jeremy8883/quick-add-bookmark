@@ -236,6 +236,25 @@ export const buildTreeNode = (
   return wrapper;
 };
 
+/**
+ * Build a 16px favicon image element for a page URL. Uses Chrome's
+ * built-in `_favicon` endpoint (requires the "favicon" permission in
+ * the host extension's manifest). Chrome returns its cached favicon
+ * when known, or a generic placeholder otherwise — no network fetch.
+ */
+export const buildFaviconIcon = (pageUrl: string): HTMLImageElement => {
+  const img = document.createElement("img");
+  img.className = "tree-icon tree-favicon";
+  img.width = 16;
+  img.height = 16;
+  img.loading = "lazy";
+  img.alt = "";
+  img.src = chrome.runtime.getURL(
+    `/_favicon/?pageUrl=${encodeURIComponent(pageUrl)}&size=32`,
+  );
+  return img;
+};
+
 const buildBookmarkLeaf = (
   node: chrome.bookmarks.BookmarkTreeNode,
   depth: number,
@@ -256,9 +275,13 @@ const buildBookmarkLeaf = (
   toggle.className = "tree-toggle empty";
   item.appendChild(toggle);
 
-  const iconSpan = document.createElement("span");
-  iconSpan.innerHTML = BOOKMARK_LEAF_SVG;
-  item.appendChild(iconSpan.firstElementChild!);
+  if (node.url) {
+    item.appendChild(buildFaviconIcon(node.url));
+  } else {
+    const iconSpan = document.createElement("span");
+    iconSpan.innerHTML = BOOKMARK_LEAF_SVG;
+    item.appendChild(iconSpan.firstElementChild!);
+  }
 
   const label = document.createElement("span");
   label.className = "tree-label";

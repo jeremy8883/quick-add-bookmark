@@ -3,7 +3,7 @@
   "name": "Quick Go To Bookmark",
   "version": "0.1.0",
   "description": "Quickly find and open bookmarks by typing — keyboard-first, ranked by recency and frequency.",
-  "permissions": ["bookmarks", "storage"],
+  "permissions": ["bookmarks", "storage", "favicon"],
   "background": {
     "service_worker": "background.js"
   },
