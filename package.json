@@ -13,8 +13,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "package": "cd dist/quick-add-bookmark && zip -r ../../quick-add-bookmark.zip . && cd ../..",
-    "release": "npm run build && npm run package && gh release create v$(node -p \"require('./package.json').version\") quick-add-bookmark.zip --title \"v$(node -p \"require('./package.json').version\")\" --generate-notes",
+    "package": "node scripts/package.js",
+    "release": "node scripts/release.js",
     "version": "node scripts/version.js"
   },
   "repository": {

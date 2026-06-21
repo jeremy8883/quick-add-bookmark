@@ -1,4 +1,4 @@
 node_modules/
 dist/
-quick-add-bookmark.zip
+*.zip
 extensions/*/signing-key.pem

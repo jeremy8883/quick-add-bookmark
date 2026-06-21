@@ -1,16 +1,24 @@
 import { readFileSync, writeFileSync } from "fs";
+import { resolveExtension } from "./extensions.js";
 
-const EXTENSIONS = ["quick-add-bookmark", "quick-go-to-bookmark"];
+// Bumps a single extension's version. The extension's manifest.json is the
+// source of truth. Usage: node scripts/version.js <name> <major|minor|patch>
+const name = process.argv[2];
+const bump = process.argv[3];
 
-const bump = process.argv[2];
+const ext = resolveExtension(
+  name,
+  "Usage: npm run version -- <name> <major|minor|patch>",
+);
 
 if (!["major", "minor", "patch"].includes(bump)) {
-  console.error("Usage: npm run version -- <major|minor|patch>");
+  console.error("Usage: npm run version -- <name> <major|minor|patch>");
   process.exit(1);
 }
 
-const pkg = JSON.parse(readFileSync("package.json", "utf-8"));
-const parts = pkg.version.split(".").map(Number);
+const manifestPath = `extensions/${ext.name}/manifest.json`;
+const manifest = JSON.parse(readFileSync(manifestPath, "utf-8"));
+const parts = manifest.version.split(".").map(Number);
 
 if (bump === "major") {
   parts[0]++;
@@ -24,15 +32,7 @@ if (bump === "major") {
 }
 
 const version = parts.join(".");
+const updated = { ...manifest, version };
+writeFileSync(manifestPath, JSON.stringify(updated, null, 2) + "\n");
 
-const files = [
-  "package.json",
-  ...EXTENSIONS.map((e) => `extensions/${e}/manifest.json`),
-];
-for (const file of files) {
-  const json = JSON.parse(readFileSync(file, "utf-8"));
-  json.version = version;
-  writeFileSync(file, JSON.stringify(json, null, 2) + "\n");
-}
-
-console.log(`${pkg.version} → ${version}`);
+console.log(`${ext.name}: ${manifest.version} → ${version}`);

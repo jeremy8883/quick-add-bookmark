@@ -2,52 +2,28 @@ import { rmSync, mkdirSync, cpSync } from "fs";
 import { execSync } from "child_process";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { EXTENSIONS, EXTENSION_NAMES } from "./extensions.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 const bin = (cmd) => resolve(root, "node_modules", ".bin", cmd);
 
-const EXTENSIONS = [
-  {
-    name: "quick-add-bookmark",
-    entries: [
-      { src: "src/popup.ts", out: "popup.js" },
-      { src: "src/background.ts", out: "background.js" },
-    ],
-    staticAssets: ["manifest.json", "popup.html", "popup.css", "icons"],
-  },
-  {
-    name: "quick-go-to-bookmark",
-    entries: [
-      { src: "src/go-to.ts", out: "go-to.js" },
-      { src: "src/background.ts", out: "background.js" },
-    ],
-    staticAssets: ["manifest.json", "go-to.html", "go-to.css", "icons"],
-  },
-  {
-    name: "quick-sync-bookmark",
-    entries: [
-      { src: "src/popup.ts", out: "popup.js" },
-      { src: "src/options.ts", out: "options.js" },
-      { src: "src/background.ts", out: "background.js" },
-    ],
-    staticAssets: [
-      "manifest.json",
-      "popup.html",
-      "popup.css",
-      "options.html",
-      "options.css",
-      "icons",
-    ],
-  },
-];
+// Optionally build a single extension: `node scripts/build.js <name>`.
+// With no argument, builds all of them.
+const only = process.argv[2];
+if (only && !EXTENSION_NAMES.includes(only)) {
+  console.error(`Unknown extension: ${only}`);
+  console.error(`Extensions: ${EXTENSION_NAMES.join(", ")}`);
+  process.exit(1);
+}
+const targets = only ? EXTENSIONS.filter((e) => e.name === only) : EXTENSIONS;
 
-rmSync("dist", { recursive: true, force: true });
 mkdirSync("dist", { recursive: true });
 
 execSync(`"${bin("tsc")}" --noEmit`, { stdio: "inherit", shell: true });
 
-for (const ext of EXTENSIONS) {
+for (const ext of targets) {
+  rmSync(`dist/${ext.name}`, { recursive: true, force: true });
   const extDir = `extensions/${ext.name}`;
   const outDir = `dist/${ext.name}`;
   mkdirSync(outDir, { recursive: true });
