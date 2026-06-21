@@ -206,3 +206,79 @@ body {
   font-weight: 600;
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #e8eaed;
+    background: #202124;
+  }
+
+  .search-bar {
+    border-bottom-color: #3c4043;
+  }
+
+  .search-input {
+    background: #303134;
+    border-color: #5f6368;
+    color: #e8eaed;
+  }
+
+  .search-input:focus {
+    border-color: #8ab4f8;
+    box-shadow: 0 0 0 2px rgba(138, 180, 248, 0.25);
+  }
+
+  .results:focus-visible {
+    outline-color: #8ab4f8;
+  }
+
+  .tree-item:hover,
+  .tree-item.highlighted {
+    background: #3c4043;
+  }
+
+  .tree-item.selected {
+    background: #394457;
+    color: #8ab4f8;
+  }
+
+  .tree-toggle {
+    color: #9aa0a6;
+  }
+
+  .tree-toggle:hover {
+    background: #5f6368;
+  }
+
+  .tree-toggle::after {
+    border-left-color: #9aa0a6;
+  }
+
+  .tree-icon {
+    color: #9aa0a6;
+  }
+
+  .tree-bookmark .tree-icon {
+    color: #8ab4f8;
+  }
+
+  .tree-count {
+    color: #6e7278;
+  }
+
+  .tree-breadcrumb {
+    color: #6e7278;
+  }
+
+  .tree-empty {
+    color: #6e7278;
+  }
+
+  .tree-url {
+    color: #6e7278;
+  }
+
+  .match {
+    color: #8ab4f8;
+  }
+}
+
